@@ -2,36 +2,36 @@ import { Search, Menu } from "lucide-react";
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 
-const categories = ["World", "Technology", "Business", "Science", "Culture", "Sports"];
+const categories = ["Policy", "Elections", "Congress", "White House", "State & Local", "Opinion"];
 
 const SiteHeader = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   return (
-    <header className="border-b border-border">
+    <header className="border-b border-border bg-background">
       <div className="container">
         {/* Top bar */}
         <div className="flex items-center justify-between py-3 border-b border-border">
-          <span className="text-sm font-display text-muted-foreground">
-            Tuesday, February 25, 2026
+          <span className="text-xs font-body text-muted-foreground tracking-wide">
+            Wednesday, February 25, 2026
           </span>
           <div className="flex items-center gap-4">
             <button className="text-muted-foreground hover:text-foreground transition-colors" aria-label="Search">
               <Search className="w-4 h-4" />
             </button>
-            <button className="font-display text-sm font-medium bg-accent text-accent-foreground px-4 py-1.5 rounded-sm hover:opacity-90 transition-opacity">
+            <button className="font-body text-xs font-semibold bg-accent text-accent-foreground px-4 py-1.5 rounded-sm hover:opacity-90 transition-opacity uppercase tracking-wider">
               Subscribe
             </button>
           </div>
         </div>
 
         {/* Logo */}
-        <div className="py-6 text-center">
-          <h1 className="font-display text-4xl md:text-5xl font-bold tracking-tight">
-            THE DAILY<span className="text-accent">.</span>
+        <div className="py-8 text-center">
+          <h1 className="font-display text-4xl md:text-6xl font-bold tracking-tight leading-none">
+            Unfor<span className="text-accent">-gov-</span>able
           </h1>
-          <p className="text-sm text-muted-foreground mt-1 font-display tracking-widest uppercase">
-            Independent Journalism
+          <p className="text-xs text-muted-foreground mt-2 font-body tracking-[0.25em] uppercase">
+            Accountability in Every Line
           </p>
         </div>
 
@@ -41,7 +41,7 @@ const SiteHeader = () => {
             <a
               key={cat}
               href="#"
-              className="font-display text-sm font-medium tracking-wide uppercase text-muted-foreground hover:text-accent transition-colors"
+              className="font-body text-xs font-medium tracking-widest uppercase text-muted-foreground hover:text-accent transition-colors"
             >
               {cat}
             </a>
@@ -52,7 +52,7 @@ const SiteHeader = () => {
         <div className="md:hidden flex justify-center py-3 border-t border-border">
           <button
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            className="flex items-center gap-2 font-display text-sm font-medium text-muted-foreground"
+            className="flex items-center gap-2 font-body text-xs font-medium text-muted-foreground uppercase tracking-wider"
           >
             <Menu className="w-4 h-4" />
             Sections
@@ -73,7 +73,7 @@ const SiteHeader = () => {
                   <a
                     key={cat}
                     href="#"
-                    className="font-display text-sm font-medium tracking-wide uppercase text-muted-foreground hover:text-accent transition-colors"
+                    className="font-body text-xs font-medium tracking-widest uppercase text-muted-foreground hover:text-accent transition-colors"
                   >
                     {cat}
                   </a>
