@@ -13,43 +13,79 @@ import newsCulture from "@/assets/news-culture.jpg";
 const articles = [
   {
     image: newsTech,
-    category: "Technology",
-    title: "The Race to Build Quantum-Resistant Encryption Before It's Too Late",
-    excerpt: "As quantum computing advances accelerate, cryptographers are in a sprint to develop new security standards that can withstand attacks from future machines.",
+    category: "Policy",
+    title: "Surveillance Reform Bill Faces Crucial Senate Vote This Week",
+    excerpt: "Bipartisan legislation to overhaul FISA Section 702 reaches the Senate floor amid heated debate over civil liberties and national security.",
     author: "Marcus Webb",
     readTime: "8 min read",
+    tags: ["Sen. Wyden", "Privacy", "Democrat"],
+    citations: [
+      { source: "Congressional Record", url: "#" },
+      { source: "ACLU Brief", url: "#" },
+      { source: "DOJ Statement", url: "#" },
+    ],
+    verifications: 234,
   },
   {
     image: newsFinance,
-    category: "Business",
-    title: "Markets React to Sweeping Trade Policy Overhaul",
-    excerpt: "Global financial markets experienced sharp volatility as new tariff structures reshape international commerce relationships.",
+    category: "Elections",
+    title: "Dark Money Groups Outspend Candidates 3-to-1 in Key Races",
+    excerpt: "FEC filings reveal unprecedented outside spending in competitive districts, raising questions about campaign finance enforcement.",
     author: "Elena Vasquez",
     readTime: "6 min read",
+    tags: ["FEC", "Campaign Finance", "PACs"],
+    citations: [
+      { source: "FEC Filing Data", url: "#" },
+      { source: "OpenSecrets", url: "#" },
+      { source: "Brennan Center", url: "#" },
+    ],
+    verifications: 189,
   },
   {
     image: newsNature,
-    category: "Science",
-    title: "Remote Valleys Reveal New Species Untouched by Modern World",
-    excerpt: "A scientific expedition into uncharted mountain regions has uncovered dozens of previously unknown plant and animal species.",
+    category: "White House",
+    title: "Executive Order on Climate Faces Legal Challenge from 18 States",
+    excerpt: "A coalition of state attorneys general files suit arguing the administration overstepped its authority on emissions regulations.",
     author: "Dr. James Okafor",
     readTime: "10 min read",
+    tags: ["EPA", "Climate", "Republican"],
+    citations: [
+      { source: "Court Filing", url: "#" },
+      { source: "EPA.gov", url: "#" },
+      { source: "State AG Coalition", url: "#" },
+      { source: "Reuters", url: "#" },
+    ],
+    verifications: 567,
   },
   {
     image: newsSports,
-    category: "Sports",
-    title: "Stadium Revolution: How Smart Arenas Are Changing Live Events",
-    excerpt: "New generation venues are integrating AI and IoT technologies to create immersive experiences for millions of fans worldwide.",
+    category: "Congress",
+    title: "Infrastructure Package Stalls as Factions Clash Over Funding",
+    excerpt: "House leadership scrambles to bridge divides within the caucus as the deadline for a continuing resolution approaches.",
     author: "Rika Tanaka",
     readTime: "5 min read",
+    tags: ["Speaker Johnson", "Budget", "Bipartisan"],
+    citations: [
+      { source: "CBO Score", url: "#" },
+      { source: "House Rules Cmte", url: "#" },
+      { source: "Politico", url: "#" },
+    ],
+    verifications: 312,
   },
   {
     image: newsCulture,
-    category: "Culture",
-    title: "The Museum of Tomorrow: How Institutions Are Reinventing Themselves",
-    excerpt: "From interactive installations to AI-curated exhibits, cultural institutions are embracing radical transformation to attract new audiences.",
+    category: "State & Local",
+    title: "Redistricting Battles Intensify Ahead of 2026 Cycle",
+    excerpt: "Court-ordered map redraws in three states could reshape the competitive landscape for dozens of House seats.",
     author: "Amir Patel",
     readTime: "7 min read",
+    tags: ["Gerrymandering", "SCOTUS", "Voting Rights"],
+    citations: [
+      { source: "SCOTUS Opinion", url: "#" },
+      { source: "Redistricting Data Hub", url: "#" },
+      { source: "AP News", url: "#" },
+    ],
+    verifications: 445,
   },
 ];
 
@@ -64,7 +100,7 @@ const Index = () => {
           {/* News Grid */}
           <div className="lg:col-span-2">
             <div className="flex items-center justify-between mb-8">
-              <h2 className="font-display text-xl font-bold tracking-wide uppercase">
+              <h2 className="font-display text-xl font-bold tracking-wide">
                 Latest Stories
               </h2>
               <div className="h-px flex-1 bg-border ml-6" />
@@ -83,16 +119,16 @@ const Index = () => {
 
               {/* Newsletter CTA */}
               <div className="mt-10 bg-primary text-primary-foreground p-6 rounded-sm">
-                <h3 className="font-display text-lg font-bold">Stay Informed</h3>
-                <p className="font-body text-sm mt-2 opacity-80 leading-relaxed">
-                  Get the day's top stories delivered to your inbox every morning.
+                <h3 className="font-display text-lg font-bold">Stay Accountable</h3>
+                <p className="font-body text-xs mt-2 text-primary-foreground/60 leading-relaxed">
+                  Get the day's most verified political stories delivered to your inbox.
                 </p>
                 <input
                   type="email"
                   placeholder="your@email.com"
-                  className="w-full mt-4 px-3 py-2 text-sm rounded-sm bg-primary-foreground/10 border border-primary-foreground/20 text-primary-foreground placeholder:text-primary-foreground/40 focus:outline-none focus:ring-1 focus:ring-accent font-display"
+                  className="w-full mt-4 px-3 py-2 text-sm rounded-sm bg-primary-foreground/10 border border-primary-foreground/20 text-primary-foreground placeholder:text-primary-foreground/30 focus:outline-none focus:ring-1 focus:ring-accent font-body"
                 />
-                <button className="w-full mt-3 bg-accent text-accent-foreground font-display text-sm font-semibold py-2 rounded-sm hover:opacity-90 transition-opacity">
+                <button className="w-full mt-3 bg-accent text-accent-foreground font-body text-xs font-semibold py-2 rounded-sm hover:opacity-90 transition-opacity uppercase tracking-wider">
                   Subscribe
                 </button>
               </div>

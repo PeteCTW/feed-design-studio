@@ -1,23 +1,23 @@
 const SiteFooter = () => {
   return (
-    <footer className="border-t border-border mt-16">
+    <footer className="border-t border-border mt-16 bg-primary text-primary-foreground">
       <div className="container py-12">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
           <div>
             <h3 className="font-display text-xl font-bold">
-              THE DAILY<span className="text-accent">.</span>
+              Unfor<span className="text-accent">-gov-</span>able
             </h3>
-            <p className="font-body text-sm text-muted-foreground mt-2 leading-relaxed">
-              Delivering independent, quality journalism since 2026.
+            <p className="font-body text-xs text-primary-foreground/60 mt-2 leading-relaxed">
+              Accountability in every line. Independent political journalism since 2026.
             </p>
           </div>
           {[
-            { title: "Sections", links: ["World", "Technology", "Business", "Science"] },
+            { title: "Sections", links: ["Policy", "Elections", "Congress", "White House"] },
             { title: "Company", links: ["About", "Careers", "Contact", "Advertise"] },
-            { title: "Legal", links: ["Privacy", "Terms", "Cookies", "Accessibility"] },
+            { title: "Legal", links: ["Privacy", "Terms", "Ethics Policy", "Corrections"] },
           ].map((col) => (
             <div key={col.title}>
-              <h4 className="font-display text-sm font-semibold tracking-wide uppercase mb-3">
+              <h4 className="font-body text-xs font-semibold tracking-widest uppercase mb-3 text-primary-foreground/80">
                 {col.title}
               </h4>
               <ul className="space-y-2">
@@ -25,7 +25,7 @@ const SiteFooter = () => {
                   <li key={link}>
                     <a
                       href="#"
-                      className="font-display text-sm text-muted-foreground hover:text-accent transition-colors"
+                      className="font-body text-xs text-primary-foreground/50 hover:text-accent transition-colors"
                     >
                       {link}
                     </a>
@@ -35,9 +35,9 @@ const SiteFooter = () => {
             </div>
           ))}
         </div>
-        <div className="border-t border-border mt-8 pt-6 text-center">
-          <p className="font-display text-xs text-muted-foreground">
-            © 2026 The Daily. All rights reserved.
+        <div className="border-t border-primary-foreground/10 mt-8 pt-6 text-center">
+          <p className="font-body text-[10px] text-primary-foreground/40 tracking-wider">
+            © 2026 Unfor-gov-able. All rights reserved. All articles require minimum 3 citations.
           </p>
         </div>
       </div>
