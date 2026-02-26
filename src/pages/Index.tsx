@@ -18,7 +18,11 @@ const articles = [
     excerpt: "Bipartisan legislation to overhaul FISA Section 702 reaches the Senate floor amid heated debate over civil liberties and national security.",
     author: "Marcus Webb",
     readTime: "8 min read",
-    tags: ["Sen. Wyden", "Privacy", "Democrat"],
+    tags: [
+      { label: "Sen. Wyden", type: "politician" as const },
+      { label: "Democrat", type: "party" as const },
+      { label: "Privacy", type: "topic" as const },
+    ],
     citations: [
       { source: "Congressional Record", url: "#" },
       { source: "ACLU Brief", url: "#" },
@@ -33,7 +37,11 @@ const articles = [
     excerpt: "FEC filings reveal unprecedented outside spending in competitive districts, raising questions about campaign finance enforcement.",
     author: "Elena Vasquez",
     readTime: "6 min read",
-    tags: ["FEC", "Campaign Finance", "PACs"],
+    tags: [
+      { label: "FEC", type: "topic" as const },
+      { label: "Republican", type: "party" as const },
+      { label: "Campaign Finance", type: "topic" as const },
+    ],
     citations: [
       { source: "FEC Filing Data", url: "#" },
       { source: "OpenSecrets", url: "#" },
@@ -48,7 +56,11 @@ const articles = [
     excerpt: "A coalition of state attorneys general files suit arguing the administration overstepped its authority on emissions regulations.",
     author: "Dr. James Okafor",
     readTime: "10 min read",
-    tags: ["EPA", "Climate", "Republican"],
+    tags: [
+      { label: "EPA", type: "topic" as const },
+      { label: "Republican", type: "party" as const },
+      { label: "Rep. McCarthy", type: "politician" as const },
+    ],
     citations: [
       { source: "Court Filing", url: "#" },
       { source: "EPA.gov", url: "#" },
@@ -64,7 +76,11 @@ const articles = [
     excerpt: "House leadership scrambles to bridge divides within the caucus as the deadline for a continuing resolution approaches.",
     author: "Rika Tanaka",
     readTime: "5 min read",
-    tags: ["Speaker Johnson", "Budget", "Bipartisan"],
+    tags: [
+      { label: "Speaker Johnson", type: "politician" as const },
+      { label: "Budget", type: "topic" as const },
+      { label: "Bipartisan", type: "topic" as const },
+    ],
     citations: [
       { source: "CBO Score", url: "#" },
       { source: "House Rules Cmte", url: "#" },
@@ -79,7 +95,11 @@ const articles = [
     excerpt: "Court-ordered map redraws in three states could reshape the competitive landscape for dozens of House seats.",
     author: "Amir Patel",
     readTime: "7 min read",
-    tags: ["Gerrymandering", "SCOTUS", "Voting Rights"],
+    tags: [
+      { label: "SCOTUS", type: "topic" as const },
+      { label: "Democrat", type: "party" as const },
+      { label: "Voting Rights", type: "topic" as const },
+    ],
     citations: [
       { source: "SCOTUS Opinion", url: "#" },
       { source: "Redistricting Data Hub", url: "#" },
@@ -101,11 +121,11 @@ const Index = () => {
           <div className="lg:col-span-2">
             <div className="flex items-center justify-between mb-8">
               <h2 className="font-display text-xl font-bold tracking-wide">
-                Latest Stories
+                Community Feed
               </h2>
               <div className="h-px flex-1 bg-border ml-6" />
             </div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-8">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
               {articles.map((article, i) => (
                 <NewsCard key={i} {...article} index={i} />
               ))}
@@ -118,17 +138,17 @@ const Index = () => {
               <TrendingSidebar />
 
               {/* Newsletter CTA */}
-              <div className="mt-10 bg-primary text-primary-foreground p-6 rounded-sm">
-                <h3 className="font-display text-lg font-bold">Stay Accountable</h3>
-                <p className="font-body text-xs mt-2 text-primary-foreground/60 leading-relaxed">
+              <div className="mt-10 bg-card border border-border p-6 rounded-lg">
+                <h3 className="font-display text-lg font-bold">Join the Community</h3>
+                <p className="font-body text-xs mt-2 text-muted-foreground leading-relaxed">
                   Get the day's most verified political stories delivered to your inbox.
                 </p>
                 <input
                   type="email"
                   placeholder="your@email.com"
-                  className="w-full mt-4 px-3 py-2 text-sm rounded-sm bg-primary-foreground/10 border border-primary-foreground/20 text-primary-foreground placeholder:text-primary-foreground/30 focus:outline-none focus:ring-1 focus:ring-accent font-body"
+                  className="w-full mt-4 px-3 py-2 text-sm rounded-md bg-background border border-input text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:ring-1 focus:ring-accent font-body"
                 />
-                <button className="w-full mt-3 bg-accent text-accent-foreground font-body text-xs font-semibold py-2 rounded-sm hover:opacity-90 transition-opacity uppercase tracking-wider">
+                <button className="w-full mt-3 bg-accent text-accent-foreground font-body text-xs font-semibold py-2.5 rounded-md hover:opacity-90 transition-opacity uppercase tracking-wider">
                   Subscribe
                 </button>
               </div>
