@@ -1,76 +1,67 @@
-import { Search, Menu, TrendingUp } from "lucide-react";
+import { Search, UserCircle, Info, X } from "lucide-react";
 import { useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
-
-const categories = ["Feed", "Policy", "Elections", "Congress", "White House", "Trending"];
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 
 const SiteHeader = () => {
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-
   return (
     <header className="sticky top-0 z-50 border-b border-border bg-background/95 backdrop-blur-sm">
       <div className="container">
-        <div className="flex items-center justify-between h-16">
+        <div className="flex items-center justify-between h-14">
           {/* Logo */}
-          <div className="flex items-center gap-3">
-            <h1 className="font-display text-xl md:text-2xl font-bold tracking-tight leading-none">
-              Unfor<span className="text-accent">-gov-</span>able
-            </h1>
-          </div>
+          <h1 className="font-display text-lg font-bold tracking-tight leading-none">
+            Unfor<span className="text-accent">-gov-</span>able
+          </h1>
 
-          {/* Desktop Nav */}
-          <nav className="hidden md:flex items-center gap-6">
-            {categories.map((cat) => (
-              <a
-                key={cat}
-                href="#"
-                className="font-body text-xs font-medium tracking-wider uppercase text-muted-foreground hover:text-foreground transition-colors"
-              >
-                {cat}
-              </a>
-            ))}
-          </nav>
+          {/* Right actions */}
+          <div className="flex items-center gap-1">
+            {/* About dialog */}
+            <Dialog>
+              <DialogTrigger asChild>
+                <button className="p-2 rounded-md text-muted-foreground hover:text-foreground hover:bg-secondary transition-colors" aria-label="About">
+                  <Info className="w-4 h-4" />
+                </button>
+              </DialogTrigger>
+              <DialogContent className="max-w-lg">
+                <DialogHeader>
+                  <DialogTitle className="font-display text-xl">
+                    About Unfor<span className="text-accent">-gov-</span>able
+                  </DialogTitle>
+                </DialogHeader>
+                <div className="font-body text-sm text-muted-foreground space-y-3 leading-relaxed">
+                  <p>
+                    <strong className="text-foreground">Unfor-gov-able</strong> is a community-driven political accountability platform. 
+                    Every article is backed by at least <strong className="text-foreground">3 citations</strong> from 
+                    primary sources, and verified by our community.
+                  </p>
+                  <p>
+                    We tag every story with the <span className="text-accent font-medium">politicians</span>, 
+                    <span className="text-primary font-medium"> parties</span>, and 
+                    <span className="text-muted-foreground font-medium"> topics</span> involved — 
+                    so you always know who's accountable.
+                  </p>
+                  <p>
+                    Our <strong className="text-foreground">veracity score</strong> reflects how many community 
+                    members have independently verified the claims in each article against the cited sources.
+                  </p>
+                  <div className="pt-2 border-t border-border text-xs text-muted-foreground/60">
+                    Independent. Cited. Verified. Since 2026.
+                  </div>
+                </div>
+              </DialogContent>
+            </Dialog>
 
-          {/* Actions */}
-          <div className="flex items-center gap-3">
-            <button className="text-muted-foreground hover:text-foreground transition-colors p-2 rounded-md hover:bg-secondary" aria-label="Search">
-              <Search className="w-4 h-4" />
-            </button>
-            <button className="hidden sm:block font-body text-xs font-semibold bg-accent text-accent-foreground px-4 py-2 rounded-md hover:opacity-90 transition-opacity">
-              Sign Up
-            </button>
-            <button
-              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="md:hidden p-2 text-muted-foreground hover:text-foreground rounded-md hover:bg-secondary"
-            >
-              <Menu className="w-4 h-4" />
+            {/* Account */}
+            <button className="p-2 rounded-md text-muted-foreground hover:text-foreground hover:bg-secondary transition-colors" aria-label="Account">
+              <UserCircle className="w-4 h-4" />
             </button>
           </div>
         </div>
-
-        {/* Mobile Nav */}
-        <AnimatePresence>
-          {mobileMenuOpen && (
-            <motion.nav
-              initial={{ height: 0, opacity: 0 }}
-              animate={{ height: "auto", opacity: 1 }}
-              exit={{ height: 0, opacity: 0 }}
-              className="md:hidden overflow-hidden border-t border-border"
-            >
-              <div className="flex flex-col gap-1 py-3">
-                {categories.map((cat) => (
-                  <a
-                    key={cat}
-                    href="#"
-                    className="font-body text-sm font-medium px-3 py-2 rounded-md text-muted-foreground hover:text-foreground hover:bg-secondary transition-colors"
-                  >
-                    {cat}
-                  </a>
-                ))}
-              </div>
-            </motion.nav>
-          )}
-        </AnimatePresence>
       </div>
     </header>
   );
