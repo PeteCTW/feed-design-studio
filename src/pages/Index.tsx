@@ -375,12 +375,12 @@ const Index = () => {
           </div>
         )}
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+        <div className="flex flex-col gap-5">
           {filteredArticles.map((article, i) => (
             <NewsCard key={article.title} {...article} index={i} />
           ))}
           {filteredArticles.length === 0 && (
-            <p className="font-body text-sm text-muted-foreground col-span-2 py-12 text-center">
+            <p className="font-body text-sm text-muted-foreground py-12 text-center">
               No articles match your filters.
             </p>
           )}
