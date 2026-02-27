@@ -351,7 +351,7 @@ const Index = () => {
         </button>
       )}
 
-      <main className="container max-w-3xl py-6">
+      <main className="container max-w-5xl py-6">
         {/* Active filter indicator */}
         {hasActiveFilters && (
           <div className="flex items-center gap-2 mb-4 flex-wrap">
