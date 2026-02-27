@@ -1,8 +1,10 @@
+import { useState } from "react";
 import { useParams, Link } from "react-router-dom";
-import { ArrowLeft, ShieldCheck, ExternalLink, User, Flag, Hash } from "lucide-react";
-import { motion } from "framer-motion";
+import { ArrowLeft, ShieldCheck, ExternalLink, User, Flag, Hash, CheckCircle2, MessageCircleQuestion } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
 import SiteHeader from "@/components/SiteHeader";
 import SiteFooter from "@/components/SiteFooter";
+import VerifyActions from "@/components/VerifyActions";
 
 import newsTech from "@/assets/news-tech.jpg";
 import newsFinance from "@/assets/news-finance.jpg";
@@ -200,21 +202,11 @@ const Article = () => {
             <img src={article.image} alt={article.title} className="w-full aspect-[2/1] object-cover" />
           </div>
 
-          {/* Veracity */}
-          <div className="mt-6 p-4 bg-secondary/50 rounded-md border border-border">
-            <div className="flex items-center justify-between mb-2">
-              <span className="flex items-center gap-1.5 font-body text-sm font-semibold text-foreground">
-                <ShieldCheck className="w-4 h-4" />
-                {article.verifications} verifications
-              </span>
-              <span className="font-body text-xs font-medium text-muted-foreground uppercase tracking-wider">
-                {veracity.label}
-              </span>
-            </div>
-            <div className="h-2 bg-muted rounded-full overflow-hidden">
-              <div className={`h-full ${veracity.color} ${veracity.width} rounded-full`} />
-            </div>
-          </div>
+          {/* Verify / Challenge actions */}
+          <VerifyActions
+            initialVerifications={article.verifications}
+            veracityLevel={veracity}
+          />
 
           {/* Body */}
           <div className="mt-8 font-body text-base leading-relaxed text-foreground space-y-4">
