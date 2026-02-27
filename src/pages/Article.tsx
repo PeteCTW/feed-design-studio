@@ -201,21 +201,11 @@ const Article = () => {
             <img src={article.image} alt={article.title} className="w-full aspect-[2/1] object-cover" />
           </div>
 
-          {/* Veracity */}
-          <div className="mt-6 p-4 bg-secondary/50 rounded-md border border-border">
-            <div className="flex items-center justify-between mb-2">
-              <span className="flex items-center gap-1.5 font-body text-sm font-semibold text-foreground">
-                <ShieldCheck className="w-4 h-4" />
-                {article.verifications} verifications
-              </span>
-              <span className="font-body text-xs font-medium text-muted-foreground uppercase tracking-wider">
-                {veracity.label}
-              </span>
-            </div>
-            <div className="h-2 bg-muted rounded-full overflow-hidden">
-              <div className={`h-full ${veracity.color} ${veracity.width} rounded-full`} />
-            </div>
-          </div>
+          {/* Verify / Challenge actions */}
+          <VerifyActions
+            initialVerifications={article.verifications}
+            veracityLevel={veracity}
+          />
 
           {/* Body */}
           <div className="mt-8 font-body text-base leading-relaxed text-foreground space-y-4">
