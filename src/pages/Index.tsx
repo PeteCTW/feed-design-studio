@@ -19,6 +19,7 @@ const articles = [
     excerpt: "Bipartisan legislation to overhaul FISA Section 702 reaches the Senate floor amid heated debate over civil liberties and national security.",
     author: "Marcus Webb",
     readTime: "8 min",
+    slug: "surveillance-reform-bill",
     tags: [
       { label: "Sen. Wyden", type: "politician" as const },
       { label: "Democrat", type: "party" as const },
@@ -38,6 +39,7 @@ const articles = [
     excerpt: "FEC filings reveal unprecedented outside spending in competitive districts, raising questions about campaign finance enforcement.",
     author: "Elena Vasquez",
     readTime: "6 min",
+    slug: "dark-money-groups",
     tags: [
       { label: "FEC", type: "topic" as const },
       { label: "Republican", type: "party" as const },
@@ -57,6 +59,7 @@ const articles = [
     excerpt: "A coalition of state attorneys general files suit arguing the administration overstepped its authority on emissions regulations.",
     author: "Dr. James Okafor",
     readTime: "10 min",
+    slug: "climate-executive-order",
     tags: [
       { label: "EPA", type: "topic" as const },
       { label: "Republican", type: "party" as const },
@@ -77,6 +80,7 @@ const articles = [
     excerpt: "House leadership scrambles to bridge divides within the caucus as the deadline for a continuing resolution approaches.",
     author: "Rika Tanaka",
     readTime: "5 min",
+    slug: "infrastructure-package-stalls",
     tags: [
       { label: "Speaker Johnson", type: "politician" as const },
       { label: "Budget", type: "topic" as const },
@@ -96,6 +100,7 @@ const articles = [
     excerpt: "Court-ordered map redraws in three states could reshape the competitive landscape for dozens of House seats.",
     author: "Amir Patel",
     readTime: "7 min",
+    slug: "redistricting-battles",
     tags: [
       { label: "SCOTUS", type: "topic" as const },
       { label: "Democrat", type: "party" as const },
@@ -351,7 +356,7 @@ const Index = () => {
         </button>
       )}
 
-      <main className="container max-w-3xl py-6">
+      <main className="container max-w-5xl py-6">
         {/* Active filter indicator */}
         {hasActiveFilters && (
           <div className="flex items-center gap-2 mb-4 flex-wrap">
