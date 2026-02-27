@@ -4,6 +4,7 @@ import { ArrowLeft, ShieldCheck, ExternalLink, User, Flag, Hash, CheckCircle2, M
 import { motion, AnimatePresence } from "framer-motion";
 import SiteHeader from "@/components/SiteHeader";
 import SiteFooter from "@/components/SiteFooter";
+import VerifyActions from "@/components/VerifyActions";
 
 import newsTech from "@/assets/news-tech.jpg";
 import newsFinance from "@/assets/news-finance.jpg";
