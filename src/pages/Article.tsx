@@ -1,6 +1,7 @@
+import { useState } from "react";
 import { useParams, Link } from "react-router-dom";
-import { ArrowLeft, ShieldCheck, ExternalLink, User, Flag, Hash } from "lucide-react";
-import { motion } from "framer-motion";
+import { ArrowLeft, ShieldCheck, ExternalLink, User, Flag, Hash, CheckCircle2, MessageCircleQuestion } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
 import SiteHeader from "@/components/SiteHeader";
 import SiteFooter from "@/components/SiteFooter";
 
