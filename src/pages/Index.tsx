@@ -1,155 +1,82 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
+import { useSearchParams } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
-import { Filter, TrendingUp, ShieldCheck, ChevronLeft, ChevronRight, X } from "lucide-react";
+import { Filter, TrendingUp, ShieldCheck, X, Search, CheckCircle2, MessageCircleQuestion, Clock } from "lucide-react";
 import SiteHeader from "@/components/SiteHeader";
 import NewsCard from "@/components/NewsCard";
 import SiteFooter from "@/components/SiteFooter";
+import CoachMark from "@/components/CoachMark";
+import { articles, trendingArticles, getUniqueTags, politicianParty, partyColors, type Tag } from "@/lib/articles";
+import { getVeracityRating, allRatingLevels, type VeracityLevel } from "@/lib/veracity";
 
-import newsTech from "@/assets/news-tech.jpg";
-import newsFinance from "@/assets/news-finance.jpg";
-import newsNature from "@/assets/news-nature.jpg";
-import newsSports from "@/assets/news-sports.jpg";
-import newsCulture from "@/assets/news-culture.jpg";
+const getTagStyle = (tag: Tag) => {
+  if (tag.type === "party") {
+    const colors = partyColors[tag.label];
+    if (colors) return `${colors.bg} ${colors.border} ${colors.text}`;
+    return "bg-primary/10 border-primary/30 text-primary";
+  }
+  if (tag.type === "politician") {
+    const party = politicianParty[tag.label];
+    if (party && partyColors[party]) {
+      const colors = partyColors[party];
+      return `${colors.bg} ${colors.border} ${colors.text}`;
+    }
+    return "bg-accent/10 border-accent/30 text-accent";
+  }
+  return "bg-secondary border-border text-muted-foreground";
+};
 
-const articles = [
-  {
-    image: newsTech,
-    category: "Policy",
-    title: "Surveillance Reform Bill Faces Crucial Senate Vote This Week",
-    excerpt: "Bipartisan legislation to overhaul FISA Section 702 reaches the Senate floor amid heated debate over civil liberties and national security.",
-    author: "Marcus Webb",
-    readTime: "8 min",
-    slug: "surveillance-reform-bill",
-    tags: [
-      { label: "Sen. Wyden", type: "politician" as const },
-      { label: "Democrat", type: "party" as const },
-      { label: "Privacy", type: "topic" as const },
-    ],
-    citations: [
-      { source: "Congressional Record", url: "#" },
-      { source: "ACLU Brief", url: "#" },
-      { source: "DOJ Statement", url: "#" },
-    ],
-    verifications: 234,
-  },
-  {
-    image: newsFinance,
-    category: "Elections",
-    title: "Dark Money Groups Outspend Candidates 3-to-1 in Key Races",
-    excerpt: "FEC filings reveal unprecedented outside spending in competitive districts, raising questions about campaign finance enforcement.",
-    author: "Elena Vasquez",
-    readTime: "6 min",
-    slug: "dark-money-groups",
-    tags: [
-      { label: "FEC", type: "topic" as const },
-      { label: "Republican", type: "party" as const },
-      { label: "Campaign Finance", type: "topic" as const },
-    ],
-    citations: [
-      { source: "FEC Filing Data", url: "#" },
-      { source: "OpenSecrets", url: "#" },
-      { source: "Brennan Center", url: "#" },
-    ],
-    verifications: 189,
-  },
-  {
-    image: newsNature,
-    category: "White House",
-    title: "Executive Order on Climate Faces Legal Challenge from 18 States",
-    excerpt: "A coalition of state attorneys general files suit arguing the administration overstepped its authority on emissions regulations.",
-    author: "Dr. James Okafor",
-    readTime: "10 min",
-    slug: "climate-executive-order",
-    tags: [
-      { label: "EPA", type: "topic" as const },
-      { label: "Republican", type: "party" as const },
-      { label: "Rep. McCarthy", type: "politician" as const },
-    ],
-    citations: [
-      { source: "Court Filing", url: "#" },
-      { source: "EPA.gov", url: "#" },
-      { source: "State AG Coalition", url: "#" },
-      { source: "Reuters", url: "#" },
-    ],
-    verifications: 567,
-  },
-  {
-    image: newsSports,
-    category: "Congress",
-    title: "Infrastructure Package Stalls as Factions Clash Over Funding",
-    excerpt: "House leadership scrambles to bridge divides within the caucus as the deadline for a continuing resolution approaches.",
-    author: "Rika Tanaka",
-    readTime: "5 min",
-    slug: "infrastructure-package-stalls",
-    tags: [
-      { label: "Speaker Johnson", type: "politician" as const },
-      { label: "Budget", type: "topic" as const },
-      { label: "Bipartisan", type: "topic" as const },
-    ],
-    citations: [
-      { source: "CBO Score", url: "#" },
-      { source: "House Rules Cmte", url: "#" },
-      { source: "Politico", url: "#" },
-    ],
-    verifications: 312,
-  },
-  {
-    image: newsCulture,
-    category: "State & Local",
-    title: "Redistricting Battles Intensify Ahead of 2026 Cycle",
-    excerpt: "Court-ordered map redraws in three states could reshape the competitive landscape for dozens of House seats.",
-    author: "Amir Patel",
-    readTime: "7 min",
-    slug: "redistricting-battles",
-    tags: [
-      { label: "SCOTUS", type: "topic" as const },
-      { label: "Democrat", type: "party" as const },
-      { label: "Voting Rights", type: "topic" as const },
-    ],
-    citations: [
-      { source: "SCOTUS Opinion", url: "#" },
-      { source: "Redistricting Data Hub", url: "#" },
-      { source: "AP News", url: "#" },
-    ],
-    verifications: 445,
-  },
-];
-
-const allCategories = [...new Set(articles.map((a) => a.category))];
-const uniqueTags = articles.flatMap((a) => a.tags).reduce((acc, tag) => {
-  if (!acc.find((t) => t.label === tag.label)) acc.push(tag);
-  return acc;
-}, [] as { label: string; type: "politician" | "party" | "topic" }[]);
-
-const trendingArticles = [
-  { title: "Ethics Committee Opens Investigation Into PAC Funding", category: "Congress", verifications: 891 },
-  { title: "State Legislatures Push Back on Federal Mandate", category: "State & Local", verifications: 654 },
-  { title: "New Polling Data Reshapes Midterm Predictions", category: "Elections", verifications: 523 },
-  { title: "Defense Budget Amendments Spark Floor Debate", category: "Policy", verifications: 412 },
-  { title: "Former Officials Testify on Regulatory Overreach", category: "White House", verifications: 387 },
-];
+type TrendingSort = "verified" | "recent" | "challenged";
 
 const Index = () => {
-  const [activeFilter, setActiveFilter] = useState("all");
-  const [activeTagFilter, setActiveTagFilter] = useState<string | null>(null);
+  const [searchParams, setSearchParams] = useSearchParams();
+  const [activeTagFilter, setActiveTagFilter] = useState<string | null>(searchParams.get("tag"));
+  const [activeRatingFilter, setActiveRatingFilter] = useState<VeracityLevel | null>(null);
   const [filterOpen, setFilterOpen] = useState(false);
   const [trendingOpen, setTrendingOpen] = useState(false);
+  const [tagSearch, setTagSearch] = useState("");
+  const [trendingSort, setTrendingSort] = useState<TrendingSort>("verified");
+
+  const uniqueTags = useMemo(() => getUniqueTags(), []);
+
+  // Sync tag param
+  useEffect(() => {
+    const tagParam = searchParams.get("tag");
+    if (tagParam) {
+      setActiveTagFilter(tagParam);
+      setSearchParams({}, { replace: true });
+    }
+  }, [searchParams, setSearchParams]);
 
   const filteredArticles = useMemo(() => {
     return articles.filter((article) => {
-      const categoryMatch = activeFilter === "all" || article.category === activeFilter;
       const tagMatch = !activeTagFilter || article.tags.some((t) => t.label === activeTagFilter);
-      return categoryMatch && tagMatch;
+      const ratingMatch = !activeRatingFilter || getVeracityRating(article.verifications, article.challenges).level === activeRatingFilter;
+      return tagMatch && ratingMatch;
     });
-  }, [activeFilter, activeTagFilter]);
+  }, [activeTagFilter, activeRatingFilter]);
 
-  const hasActiveFilters = activeFilter !== "all" || activeTagFilter !== null;
+  const hasActiveFilters = activeTagFilter !== null || activeRatingFilter !== null;
+
+  const filteredTags = useMemo(() => {
+    if (!tagSearch.trim()) return uniqueTags;
+    const q = tagSearch.toLowerCase();
+    return uniqueTags.filter((t) => t.label.toLowerCase().includes(q));
+  }, [tagSearch, uniqueTags]);
+
+  const sortedTrending = useMemo(() => {
+    const sorted = [...trendingArticles];
+    switch (trendingSort) {
+      case "verified": return sorted.sort((a, b) => b.verifications - a.verifications);
+      case "challenged": return sorted.sort((a, b) => b.challenges - a.challenges);
+      case "recent": return sorted.sort((a, b) => new Date(b.publishedAt).getTime() - new Date(a.publishedAt).getTime());
+    }
+  }, [trendingSort]);
 
   return (
     <div className="min-h-screen bg-background">
       <SiteHeader />
 
-      {/* Edge panels */}
       {/* Filter panel - left */}
       <AnimatePresence>
         {filterOpen && (
@@ -176,87 +103,99 @@ const Index = () => {
                   </button>
                 </div>
 
-                {/* Categories */}
-                <div className="mb-5">
-                  <span className="font-body text-[10px] text-muted-foreground uppercase tracking-wider font-semibold">Category</span>
-                  <div className="flex flex-col gap-1 mt-2">
-                    <button
-                      onClick={() => setActiveFilter("all")}
-                      className={`text-left font-body text-xs px-3 py-2 rounded-md transition-colors ${
-                        activeFilter === "all" ? "bg-foreground text-background font-medium" : "text-muted-foreground hover:bg-secondary hover:text-foreground"
-                      }`}
-                    >
-                      All
-                    </button>
-                    {allCategories.map((cat) => (
-                      <button
-                        key={cat}
-                        onClick={() => setActiveFilter(cat)}
-                        className={`text-left font-body text-xs px-3 py-2 rounded-md transition-colors ${
-                          activeFilter === cat ? "bg-foreground text-background font-medium" : "text-muted-foreground hover:bg-secondary hover:text-foreground"
-                        }`}
-                      >
-                        {cat}
-                      </button>
-                    ))}
+                {/* Tag search */}
+                <div className="mb-4">
+                  <div className="relative">
+                    <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-muted-foreground" />
+                    <input
+                      type="text"
+                      value={tagSearch}
+                      onChange={(e) => setTagSearch(e.target.value)}
+                      placeholder="Search tags..."
+                      className="w-full pl-8 pr-3 py-2 bg-background border border-border rounded-md font-body text-xs text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:ring-1 focus:ring-accent"
+                    />
                   </div>
                 </div>
 
                 {/* Politicians */}
-                <div className="mb-5">
-                  <span className="font-body text-[10px] text-muted-foreground uppercase tracking-wider font-semibold">Politicians</span>
-                  <div className="flex flex-wrap gap-1.5 mt-2">
-                    {uniqueTags.filter((t) => t.type === "politician").map((tag) => (
-                      <button
-                        key={tag.label}
-                        onClick={() => setActiveTagFilter(activeTagFilter === tag.label ? null : tag.label)}
-                        className={`font-body text-[10px] font-medium px-2.5 py-1 rounded-full border transition-all ${
-                          activeTagFilter === tag.label
-                            ? "bg-accent text-accent-foreground border-accent"
-                            : "bg-accent/10 border-accent/30 text-accent hover:bg-accent/20"
-                        }`}
-                      >
-                        {tag.label}
-                      </button>
-                    ))}
+                {filteredTags.filter((t) => t.type === "politician").length > 0 && (
+                  <div className="mb-5">
+                    <span className="font-body text-[10px] text-muted-foreground uppercase tracking-wider font-semibold">Politicians</span>
+                    <div className="flex flex-wrap gap-1.5 mt-2">
+                      {filteredTags.filter((t) => t.type === "politician").map((tag) => (
+                        <button
+                          key={tag.label}
+                          onClick={() => setActiveTagFilter(activeTagFilter === tag.label ? null : tag.label)}
+                          className={`font-body text-[10px] font-medium px-2.5 py-1 rounded-full border transition-all ${
+                            activeTagFilter === tag.label
+                              ? "bg-foreground text-background border-foreground"
+                              : getTagStyle(tag)
+                          }`}
+                        >
+                          {tag.label}
+                        </button>
+                      ))}
+                    </div>
                   </div>
-                </div>
+                )}
 
                 {/* Parties */}
-                <div className="mb-5">
-                  <span className="font-body text-[10px] text-muted-foreground uppercase tracking-wider font-semibold">Parties</span>
-                  <div className="flex flex-wrap gap-1.5 mt-2">
-                    {uniqueTags.filter((t) => t.type === "party").map((tag) => (
-                      <button
-                        key={tag.label}
-                        onClick={() => setActiveTagFilter(activeTagFilter === tag.label ? null : tag.label)}
-                        className={`font-body text-[10px] font-medium px-2.5 py-1 rounded-full border transition-all ${
-                          activeTagFilter === tag.label
-                            ? "bg-foreground text-background border-foreground"
-                            : "bg-primary/10 border-primary/30 text-primary hover:bg-primary/20"
-                        }`}
-                      >
-                        {tag.label}
-                      </button>
-                    ))}
+                {filteredTags.filter((t) => t.type === "party").length > 0 && (
+                  <div className="mb-5">
+                    <span className="font-body text-[10px] text-muted-foreground uppercase tracking-wider font-semibold">Parties</span>
+                    <div className="flex flex-wrap gap-1.5 mt-2">
+                      {filteredTags.filter((t) => t.type === "party").map((tag) => (
+                        <button
+                          key={tag.label}
+                          onClick={() => setActiveTagFilter(activeTagFilter === tag.label ? null : tag.label)}
+                          className={`font-body text-[10px] font-medium px-2.5 py-1 rounded-full border transition-all ${
+                            activeTagFilter === tag.label
+                              ? "bg-foreground text-background border-foreground"
+                              : getTagStyle(tag)
+                          }`}
+                        >
+                          {tag.label}
+                        </button>
+                      ))}
+                    </div>
                   </div>
-                </div>
+                )}
 
                 {/* Topics */}
+                {filteredTags.filter((t) => t.type === "topic").length > 0 && (
+                  <div className="mb-5">
+                    <span className="font-body text-[10px] text-muted-foreground uppercase tracking-wider font-semibold">Topics</span>
+                    <div className="flex flex-wrap gap-1.5 mt-2">
+                      {filteredTags.filter((t) => t.type === "topic").map((tag) => (
+                        <button
+                          key={tag.label}
+                          onClick={() => setActiveTagFilter(activeTagFilter === tag.label ? null : tag.label)}
+                          className={`font-body text-[10px] font-medium px-2.5 py-1 rounded-full border transition-all ${
+                            activeTagFilter === tag.label
+                              ? "bg-foreground text-background border-foreground"
+                              : getTagStyle(tag)
+                          }`}
+                        >
+                          {tag.label}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Rating filter */}
                 <div className="mb-5">
-                  <span className="font-body text-[10px] text-muted-foreground uppercase tracking-wider font-semibold">Topics</span>
-                  <div className="flex flex-wrap gap-1.5 mt-2">
-                    {uniqueTags.filter((t) => t.type === "topic").map((tag) => (
+                  <span className="font-body text-[10px] text-muted-foreground uppercase tracking-wider font-semibold">Rating</span>
+                  <div className="flex flex-col gap-1 mt-2">
+                    {allRatingLevels.map((r) => (
                       <button
-                        key={tag.label}
-                        onClick={() => setActiveTagFilter(activeTagFilter === tag.label ? null : tag.label)}
-                        className={`font-body text-[10px] font-medium px-2.5 py-1 rounded-full border transition-all ${
-                          activeTagFilter === tag.label
-                            ? "bg-foreground text-background border-foreground"
-                            : "bg-secondary border-border text-muted-foreground hover:text-foreground"
+                        key={r.level}
+                        onClick={() => setActiveRatingFilter(activeRatingFilter === r.level ? null : r.level)}
+                        className={`text-left font-body text-xs px-3 py-2 rounded-md transition-colors ${
+                          activeRatingFilter === r.level ? "bg-foreground text-background font-medium" : "text-muted-foreground hover:bg-secondary hover:text-foreground"
                         }`}
                       >
-                        {tag.label}
+                        {r.label}
                       </button>
                     ))}
                   </div>
@@ -264,7 +203,7 @@ const Index = () => {
 
                 {hasActiveFilters && (
                   <button
-                    onClick={() => { setActiveFilter("all"); setActiveTagFilter(null); }}
+                    onClick={() => { setActiveTagFilter(null); setActiveRatingFilter(null); }}
                     className="w-full font-body text-xs text-accent font-medium py-2 rounded-md border border-accent/30 hover:bg-accent/10 transition-colors"
                   >
                     Clear all filters
@@ -295,36 +234,63 @@ const Index = () => {
               className="fixed right-0 top-14 bottom-0 z-50 w-80 bg-card border-l border-border shadow-lg overflow-y-auto"
             >
               <div className="p-5">
-                <div className="flex items-center justify-between mb-5">
-                  <div className="flex items-center gap-2">
-                    <TrendingUp className="w-4 h-4 text-accent" />
-                    <h3 className="font-display text-sm font-bold">Most Verified</h3>
-                  </div>
+                <div className="flex items-center justify-between mb-4">
+                  <h3 className="font-display text-sm font-bold">Trending</h3>
                   <button onClick={() => setTrendingOpen(false)} className="p-1 rounded-md text-muted-foreground hover:text-foreground hover:bg-secondary">
                     <X className="w-4 h-4" />
                   </button>
                 </div>
-                <div className="space-y-0">
-                  {trendingArticles.map((article, i) => (
-                    <article key={i} className="group cursor-pointer py-4 border-b border-border last:border-0">
-                      <div className="flex gap-3">
-                        <span className="font-display text-2xl font-bold text-muted-foreground/20 group-hover:text-accent/30 transition-colors leading-none">
-                          {String(i + 1).padStart(2, "0")}
-                        </span>
-                        <div className="flex-1">
-                          <span className="font-body text-[10px] font-semibold tracking-widest uppercase text-accent">
-                            {article.category}
-                          </span>
-                          <h4 className="font-display text-sm font-semibold mt-0.5 leading-snug group-hover:text-accent transition-colors">
-                            {article.title}
-                          </h4>
-                          <span className="flex items-center gap-1 font-body text-[10px] text-muted-foreground mt-1">
-                            <ShieldCheck className="w-3 h-3" /> {article.verifications} verified
-                          </span>
-                        </div>
-                      </div>
-                    </article>
+
+                {/* Sort tabs */}
+                <div className="flex gap-1 mb-4 bg-secondary/50 rounded-md p-1">
+                  {([
+                    { key: "verified" as TrendingSort, label: "Verified", icon: CheckCircle2 },
+                    { key: "recent" as TrendingSort, label: "Recent", icon: Clock },
+                    { key: "challenged" as TrendingSort, label: "Challenged", icon: MessageCircleQuestion },
+                  ]).map(({ key, label, icon: Icon }) => (
+                    <button
+                      key={key}
+                      onClick={() => setTrendingSort(key)}
+                      className={`flex-1 flex items-center justify-center gap-1 font-body text-[10px] font-medium py-1.5 rounded transition-colors ${
+                        trendingSort === key ? "bg-foreground text-background" : "text-muted-foreground hover:text-foreground"
+                      }`}
+                    >
+                      <Icon className="w-3 h-3" />
+                      {label}
+                    </button>
                   ))}
+                </div>
+
+                <div className="space-y-0">
+                  {sortedTrending.map((article, i) => {
+                    const rating = getVeracityRating(article.verifications, article.challenges);
+                    return (
+                      <article key={i} className="group cursor-pointer py-4 border-b border-border last:border-0">
+                        <div className="flex gap-3">
+                          <span className="font-display text-2xl font-bold text-muted-foreground/20 group-hover:text-accent/30 transition-colors leading-none">
+                            {String(i + 1).padStart(2, "0")}
+                          </span>
+                          <div className="flex-1">
+                            <span className="font-body text-[10px] font-semibold tracking-widest uppercase text-accent">
+                              {article.category}
+                            </span>
+                            <h4 className="font-display text-sm font-semibold mt-0.5 leading-snug group-hover:text-accent transition-colors">
+                              {article.title}
+                            </h4>
+                            <div className="flex items-center gap-3 mt-1">
+                              <span className="flex items-center gap-1 font-body text-[10px] text-muted-foreground">
+                                <ShieldCheck className="w-3 h-3" /> {article.verifications}
+                              </span>
+                              <span className="flex items-center gap-1 font-body text-[10px] text-muted-foreground">
+                                <MessageCircleQuestion className="w-3 h-3" /> {article.challenges}
+                              </span>
+                              <span className="font-body text-[10px] text-muted-foreground uppercase">{rating.label}</span>
+                            </div>
+                          </div>
+                        </div>
+                      </article>
+                    );
+                  })}
                 </div>
               </div>
             </motion.aside>
@@ -332,28 +298,32 @@ const Index = () => {
         )}
       </AnimatePresence>
 
-      {/* Edge triggers (visible when panels closed) */}
+      {/* Edge triggers */}
       {!filterOpen && (
-        <button
-          onClick={() => setFilterOpen(true)}
-          className="fixed left-0 top-1/2 -translate-y-1/2 z-30 bg-card border border-l-0 border-border rounded-r-lg px-1.5 py-4 shadow-md hover:bg-secondary transition-colors group"
-          aria-label="Open filters"
-        >
-          <Filter className="w-3.5 h-3.5 text-muted-foreground group-hover:text-foreground transition-colors" />
-          {hasActiveFilters && (
-            <div className="w-1.5 h-1.5 bg-accent rounded-full absolute top-2 right-1.5" />
-          )}
-        </button>
+        <CoachMark id="filters" label="Filter articles by tags, parties, and veracity rating" position="right">
+          <button
+            onClick={() => setFilterOpen(true)}
+            className="fixed left-0 top-1/2 -translate-y-1/2 z-30 bg-card border border-l-0 border-border rounded-r-lg px-1.5 py-4 shadow-md hover:bg-secondary transition-colors group"
+            aria-label="Open filters"
+          >
+            <Filter className="w-3.5 h-3.5 text-muted-foreground group-hover:text-foreground transition-colors" />
+            {hasActiveFilters && (
+              <div className="w-1.5 h-1.5 bg-accent rounded-full absolute top-2 right-1.5" />
+            )}
+          </button>
+        </CoachMark>
       )}
 
       {!trendingOpen && (
-        <button
-          onClick={() => setTrendingOpen(true)}
-          className="fixed right-0 top-1/2 -translate-y-1/2 z-30 bg-card border border-r-0 border-border rounded-l-lg px-1.5 py-4 shadow-md hover:bg-secondary transition-colors group"
-          aria-label="Open trending"
-        >
-          <TrendingUp className="w-3.5 h-3.5 text-muted-foreground group-hover:text-foreground transition-colors" />
-        </button>
+        <CoachMark id="trending" label="See what's trending — most verified, recent, or challenged" position="left">
+          <button
+            onClick={() => setTrendingOpen(true)}
+            className="fixed right-0 top-1/2 -translate-y-1/2 z-30 bg-card border border-r-0 border-border rounded-l-lg px-1.5 py-4 shadow-md hover:bg-secondary transition-colors group"
+            aria-label="Open trending"
+          >
+            <TrendingUp className="w-3.5 h-3.5 text-muted-foreground group-hover:text-foreground transition-colors" />
+          </button>
+        </CoachMark>
       )}
 
       <main className="container max-w-5xl py-6">
@@ -361,18 +331,18 @@ const Index = () => {
         {hasActiveFilters && (
           <div className="flex items-center gap-2 mb-4 flex-wrap">
             <span className="font-body text-[10px] text-muted-foreground uppercase tracking-wider">Filtering:</span>
-            {activeFilter !== "all" && (
-              <span className="font-body text-[10px] font-medium bg-foreground text-background px-2.5 py-1 rounded-full">
-                {activeFilter}
-              </span>
-            )}
             {activeTagFilter && (
               <span className="font-body text-[10px] font-medium bg-accent/10 text-accent border border-accent/30 px-2.5 py-1 rounded-full">
                 {activeTagFilter}
               </span>
             )}
+            {activeRatingFilter && (
+              <span className="font-body text-[10px] font-medium bg-foreground text-background px-2.5 py-1 rounded-full">
+                {allRatingLevels.find((r) => r.level === activeRatingFilter)?.label}
+              </span>
+            )}
             <button
-              onClick={() => { setActiveFilter("all"); setActiveTagFilter(null); }}
+              onClick={() => { setActiveTagFilter(null); setActiveRatingFilter(null); }}
               className="font-body text-[10px] text-muted-foreground hover:text-foreground transition-colors underline"
             >
               Clear

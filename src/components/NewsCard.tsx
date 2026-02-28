@@ -1,15 +1,13 @@
 import { motion } from "framer-motion";
-import { ShieldCheck, ExternalLink, Flag, Hash, User } from "lucide-react";
+import { ShieldCheck, ExternalLink, Flag, Hash, User, CheckCircle2, MessageCircleQuestion, Sparkles } from "lucide-react";
 import { Link } from "react-router-dom";
+import { useState } from "react";
+import { getVeracityRating, getMockAISummary } from "@/lib/veracity";
+import { type Tag, politicianParty, partyColors } from "@/lib/articles";
 
 interface Citation {
   source: string;
   url: string;
-}
-
-interface Tag {
-  label: string;
-  type: "politician" | "party" | "topic";
 }
 
 interface NewsCardProps {
@@ -17,29 +15,38 @@ interface NewsCardProps {
   category: string;
   title: string;
   excerpt: string;
-  author: string;
   readTime: string;
   index: number;
   tags: Tag[];
   citations: Citation[];
   verifications: number;
+  challenges: number;
   slug: string;
 }
 
-const tagStyles: Record<Tag["type"], { bg: string; text: string; icon: typeof User }> = {
-  politician: { bg: "bg-accent/10 border-accent/30", text: "text-accent", icon: User },
-  party: { bg: "bg-primary/10 border-primary/30", text: "text-primary", icon: Flag },
-  topic: { bg: "bg-secondary border-border", text: "text-muted-foreground", icon: Hash },
+const getTagStyle = (tag: Tag) => {
+  if (tag.type === "party") {
+    const colors = partyColors[tag.label];
+    if (colors) return { bg: `${colors.bg} ${colors.border}`, text: colors.text, icon: Flag };
+    return { bg: "bg-primary/10 border-primary/30", text: "text-primary", icon: Flag };
+  }
+  if (tag.type === "politician") {
+    const party = politicianParty[tag.label];
+    if (party && partyColors[party]) {
+      const colors = partyColors[party];
+      return { bg: `${colors.bg} ${colors.border}`, text: colors.text, icon: User };
+    }
+    return { bg: "bg-accent/10 border-accent/30", text: "text-accent", icon: User };
+  }
+  return { bg: "bg-secondary border-border", text: "text-muted-foreground", icon: Hash };
 };
 
-const getVeracityLevel = (v: number) => {
-  if (v >= 500) return { label: "High confidence", color: "bg-green-500", width: "w-full" };
-  if (v >= 200) return { label: "Moderate", color: "bg-yellow-500", width: "w-2/3" };
-  return { label: "Developing", color: "bg-muted-foreground", width: "w-1/3" };
-};
-
-const NewsCard = ({ image, category, title, excerpt, readTime, index, tags, citations, verifications, slug }: NewsCardProps) => {
-  const veracity = getVeracityLevel(verifications);
+const NewsCard = ({ image, category, title, excerpt, readTime, index, tags, citations, verifications, challenges, slug }: NewsCardProps) => {
+  const rating = getVeracityRating(verifications, challenges);
+  const total = verifications + challenges;
+  const verifyPercent = total > 0 ? (verifications / total) * 100 : 50;
+  const challengePercent = total > 0 ? (challenges / total) * 100 : 50;
+  const [showHoverSummary, setShowHoverSummary] = useState(false);
 
   return (
     <Link to={`/article/${slug}`} className="block">
@@ -55,6 +62,7 @@ const NewsCard = ({ image, category, title, excerpt, readTime, index, tags, cita
             src={image}
             alt={title}
             className="w-full h-48 sm:h-full object-cover transition-transform duration-500 group-hover:scale-105"
+            loading="lazy"
           />
         </div>
 
@@ -79,7 +87,7 @@ const NewsCard = ({ image, category, title, excerpt, readTime, index, tags, cita
             {/* Tags */}
             <div className="flex flex-wrap gap-1.5 mt-3">
               {tags.map((tag) => {
-                const style = tagStyles[tag.type];
+                const style = getTagStyle(tag);
                 const Icon = style.icon;
                 return (
                   <span
@@ -94,20 +102,48 @@ const NewsCard = ({ image, category, title, excerpt, readTime, index, tags, cita
             </div>
           </div>
 
-          {/* Veracity meter — prominent box */}
-          <div className="mt-4 p-3 bg-secondary/50 rounded-md">
+          {/* Veracity meter — stacked bar */}
+          <div
+            className="relative mt-4 p-3 bg-secondary/50 rounded-md"
+            onMouseEnter={() => setShowHoverSummary(true)}
+            onMouseLeave={() => setShowHoverSummary(false)}
+          >
             <div className="flex items-center justify-between mb-1.5">
               <span className="flex items-center gap-1.5 font-body text-xs font-semibold text-foreground">
                 <ShieldCheck className="w-3.5 h-3.5" />
-                {verifications} verifications
+                {total} interactions
               </span>
               <span className="font-body text-[10px] font-medium text-muted-foreground uppercase tracking-wider">
-                {veracity.label}
+                {rating.label}
               </span>
             </div>
-            <div className="h-1.5 bg-muted rounded-full overflow-hidden">
-              <div className={`h-full ${veracity.color} ${veracity.width} rounded-full transition-all`} />
+            <div className="h-1.5 bg-muted rounded-full overflow-hidden flex">
+              <div className={`h-full ${rating.verifyColor}`} style={{ width: `${verifyPercent}%` }} />
+              <div className={`h-full ${rating.challengeColor}`} style={{ width: `${challengePercent}%` }} />
             </div>
+            <div className="flex items-center justify-between mt-1">
+              <span className="font-body text-[9px] text-muted-foreground flex items-center gap-0.5">
+                <CheckCircle2 className="w-2.5 h-2.5" /> {verifications}
+              </span>
+              <span className="font-body text-[9px] text-muted-foreground flex items-center gap-0.5">
+                <MessageCircleQuestion className="w-2.5 h-2.5" /> {challenges}
+              </span>
+            </div>
+
+            {/* Hover AI summary tooltip */}
+            {showHoverSummary && (
+              <div className="absolute bottom-full left-0 right-0 mb-2 z-10" onClick={(e) => e.preventDefault()}>
+                <div className="bg-foreground text-background rounded-lg p-3 shadow-xl">
+                  <div className="flex items-center gap-1.5 mb-1.5">
+                    <Sparkles className="w-3 h-3 text-accent" />
+                    <span className="font-body text-[10px] font-semibold">AI Community Summary</span>
+                  </div>
+                  <p className="font-body text-[11px] leading-relaxed opacity-90 line-clamp-3">
+                    {getMockAISummary(verifications, challenges)}
+                  </p>
+                </div>
+              </div>
+            )}
           </div>
 
           {/* Citations */}
