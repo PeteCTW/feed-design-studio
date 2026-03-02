@@ -42,7 +42,7 @@ const getTagStyle = (tag: Tag) => {
   return { bg: "bg-secondary border-border", text: "text-muted-foreground", icon: Hash };
 };
 
-const NewsCard = ({ image, category, title, excerpt, readTime, index, tags, citations, verifications, challenges, slug }: NewsCardProps) => {
+const NewsCard = ({ image, category, title, excerpt, readTime, index, tags, citations, verifications, challenges, slug, status }: NewsCardProps) => {
   const rating = getVeracityRating(verifications, challenges);
   const total = verifications + challenges;
   const verifyPercent = total > 0 ? (verifications / total) * 100 : 50;
