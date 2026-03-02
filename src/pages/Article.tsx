@@ -69,9 +69,16 @@ const Article = () => {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.4 }}
         >
-          <span className="font-body text-[10px] font-semibold tracking-widest uppercase text-accent">
-            {article.category}
-          </span>
+          <div className="flex items-center gap-2">
+            <span className="font-body text-[10px] font-semibold tracking-widest uppercase text-accent">
+              {article.category}
+            </span>
+            {article.status === "in-review" && (
+              <span className="font-body text-[10px] font-medium px-2 py-0.5 rounded-full bg-amber-500/10 border border-amber-500/30 text-amber-600 dark:text-amber-400">
+                In Review
+              </span>
+            )}
+          </div>
           <h1 className="font-display text-2xl md:text-3xl font-bold mt-2 leading-tight">
             {article.title}
           </h1>
@@ -116,21 +123,23 @@ const Article = () => {
           </div>
 
           {/* Citations */}
-          <div className="mt-8 pt-6 border-t border-border">
-            <h3 className="font-display text-sm font-bold mb-3">Sources & Citations</h3>
-            <div className="flex flex-wrap gap-2">
-              {article.citations.map((cite, i) => (
-                <a
-                  key={i}
-                  href={cite.url}
-                  className="inline-flex items-center gap-1 font-body text-xs text-muted-foreground hover:text-accent transition-colors bg-secondary/60 px-3 py-1.5 rounded-full border border-border"
-                >
-                  <ExternalLink className="w-3 h-3" />
-                  {cite.source}
-                </a>
-              ))}
+          <CoachMark id="citations" label="Every article requires cited primary sources for accountability" position="top">
+            <div className="mt-8 pt-6 border-t border-border">
+              <h3 className="font-display text-sm font-bold mb-3">Sources & Citations</h3>
+              <div className="flex flex-wrap gap-2">
+                {article.citations.map((cite, i) => (
+                  <a
+                    key={i}
+                    href={cite.url}
+                    className="inline-flex items-center gap-1 font-body text-xs text-muted-foreground hover:text-accent transition-colors bg-secondary/60 px-3 py-1.5 rounded-full border border-border"
+                  >
+                    <ExternalLink className="w-3 h-3" />
+                    {cite.source}
+                  </a>
+                ))}
+              </div>
             </div>
-          </div>
+          </CoachMark>
         </motion.article>
       </main>
       <SiteFooter />
