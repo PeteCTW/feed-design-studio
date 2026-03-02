@@ -22,6 +22,7 @@ interface NewsCardProps {
   verifications: number;
   challenges: number;
   slug: string;
+  status: "published" | "in-review";
 }
 
 const getTagStyle = (tag: Tag) => {
