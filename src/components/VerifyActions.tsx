@@ -2,6 +2,7 @@ import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { CheckCircle2, MessageCircleQuestion, ShieldCheck, Sparkles, ChevronDown } from "lucide-react";
 import { getVeracityRating, getMockAISummary } from "@/lib/veracity";
+import CoachMark from "@/components/CoachMark";
 
 interface VerifyActionsProps {
   initialVerifications: number;
@@ -147,70 +148,74 @@ const VerifyActions = ({ initialVerifications, initialChallenges }: VerifyAction
       </AnimatePresence>
 
       {/* Veracity meter — stacked bar */}
-      <div className="p-4 bg-secondary/50 rounded-md border border-border">
-        <div className="flex items-center justify-between mb-2">
-          <span className="flex items-center gap-1.5 font-body text-sm font-semibold text-foreground">
-            <ShieldCheck className="w-4 h-4" />
-            {total} interactions
-          </span>
-          <span className="font-body text-xs font-medium text-muted-foreground uppercase tracking-wider">
-            {rating.label}
-          </span>
+      <CoachMark id="engagement-meter" label="The engagement meter shows the ratio of verifications to challenges from the community" position="top">
+        <div className="p-4 bg-secondary/50 rounded-md border border-border">
+          <div className="flex items-center justify-between mb-2">
+            <span className="flex items-center gap-1.5 font-body text-sm font-semibold text-foreground">
+              <ShieldCheck className="w-4 h-4" />
+              {total} interactions
+            </span>
+            <span className="font-body text-xs font-medium text-muted-foreground uppercase tracking-wider">
+              {rating.label}
+            </span>
+          </div>
+          <div className="h-2.5 bg-muted rounded-full overflow-hidden flex">
+            <motion.div
+              className={`h-full ${rating.verifyColor}`}
+              initial={{ width: 0 }}
+              animate={{ width: `${verifyPercent}%` }}
+              transition={{ duration: 0.5, ease: "easeOut" }}
+            />
+            <motion.div
+              className={`h-full ${rating.challengeColor}`}
+              initial={{ width: 0 }}
+              animate={{ width: `${challengePercent}%` }}
+              transition={{ duration: 0.5, ease: "easeOut", delay: 0.1 }}
+            />
+          </div>
+          <div className="flex items-center justify-between mt-2">
+            <span className="font-body text-[10px] text-green-600 dark:text-green-400 flex items-center gap-1">
+              <CheckCircle2 className="w-3 h-3" /> {verifications} verified ({Math.round(verifyPercent)}%)
+            </span>
+            <span className="font-body text-[10px] text-amber-600 dark:text-amber-400 flex items-center gap-1">
+              <MessageCircleQuestion className="w-3 h-3" /> {challenges} challenged ({Math.round(challengePercent)}%)
+            </span>
+          </div>
         </div>
-        <div className="h-2.5 bg-muted rounded-full overflow-hidden flex">
-          <motion.div
-            className={`h-full ${rating.verifyColor}`}
-            initial={{ width: 0 }}
-            animate={{ width: `${verifyPercent}%` }}
-            transition={{ duration: 0.5, ease: "easeOut" }}
-          />
-          <motion.div
-            className={`h-full ${rating.challengeColor}`}
-            initial={{ width: 0 }}
-            animate={{ width: `${challengePercent}%` }}
-            transition={{ duration: 0.5, ease: "easeOut", delay: 0.1 }}
-          />
-        </div>
-        <div className="flex items-center justify-between mt-2">
-          <span className="font-body text-[10px] text-green-600 dark:text-green-400 flex items-center gap-1">
-            <CheckCircle2 className="w-3 h-3" /> {verifications} verified ({Math.round(verifyPercent)}%)
-          </span>
-          <span className="font-body text-[10px] text-amber-600 dark:text-amber-400 flex items-center gap-1">
-            <MessageCircleQuestion className="w-3 h-3" /> {challenges} challenged ({Math.round(challengePercent)}%)
-          </span>
-        </div>
-      </div>
+      </CoachMark>
 
       {/* AI Summary */}
-      <div className="p-4 bg-accent/5 rounded-md border border-accent/20">
-        <button
-          onClick={() => setShowAISummary(!showAISummary)}
-          className="flex items-center justify-between w-full"
-        >
-          <span className="flex items-center gap-2 font-body text-sm font-semibold text-foreground">
-            <Sparkles className="w-4 h-4 text-accent" />
-            AI Community Analysis
-          </span>
-          <ChevronDown className={`w-4 h-4 text-muted-foreground transition-transform ${showAISummary ? "rotate-180" : ""}`} />
-        </button>
-        <AnimatePresence>
-          {showAISummary && (
-            <motion.div
-              initial={{ opacity: 0, height: 0 }}
-              animate={{ opacity: 1, height: "auto" }}
-              exit={{ opacity: 0, height: 0 }}
-              className="overflow-hidden"
-            >
-              <p className="font-body text-sm text-muted-foreground leading-relaxed mt-3">
-                {getMockAISummary(verifications, challenges)}
-              </p>
-              <span className="font-body text-[10px] text-muted-foreground/50 mt-2 block">
-                Generated from {submittedComments.length + Math.floor(total * 0.3)} anonymous comments
-              </span>
-            </motion.div>
-          )}
-        </AnimatePresence>
-      </div>
+      <CoachMark id="ai-analysis" label="AI analyzes anonymous community feedback to generate sentiment summaries" position="top">
+        <div className="p-4 bg-accent/5 rounded-md border border-accent/20">
+          <button
+            onClick={() => setShowAISummary(!showAISummary)}
+            className="flex items-center justify-between w-full"
+          >
+            <span className="flex items-center gap-2 font-body text-sm font-semibold text-foreground">
+              <Sparkles className="w-4 h-4 text-accent" />
+              AI Community Analysis
+            </span>
+            <ChevronDown className={`w-4 h-4 text-muted-foreground transition-transform ${showAISummary ? "rotate-180" : ""}`} />
+          </button>
+          <AnimatePresence>
+            {showAISummary && (
+              <motion.div
+                initial={{ opacity: 0, height: 0 }}
+                animate={{ opacity: 1, height: "auto" }}
+                exit={{ opacity: 0, height: 0 }}
+                className="overflow-hidden"
+              >
+                <p className="font-body text-sm text-muted-foreground leading-relaxed mt-3">
+                  {getMockAISummary(verifications, challenges)}
+                </p>
+                <span className="font-body text-[10px] text-muted-foreground/50 mt-2 block">
+                  Generated from {submittedComments.length + Math.floor(total * 0.3)} anonymous comments
+                </span>
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </div>
+      </CoachMark>
     </div>
   );
 };

@@ -22,6 +22,7 @@ interface NewsCardProps {
   verifications: number;
   challenges: number;
   slug: string;
+  status: "published" | "in-review";
 }
 
 const getTagStyle = (tag: Tag) => {
@@ -41,7 +42,7 @@ const getTagStyle = (tag: Tag) => {
   return { bg: "bg-secondary border-border", text: "text-muted-foreground", icon: Hash };
 };
 
-const NewsCard = ({ image, category, title, excerpt, readTime, index, tags, citations, verifications, challenges, slug }: NewsCardProps) => {
+const NewsCard = ({ image, category, title, excerpt, readTime, index, tags, citations, verifications, challenges, slug, status }: NewsCardProps) => {
   const rating = getVeracityRating(verifications, challenges);
   const total = verifications + challenges;
   const verifyPercent = total > 0 ? (verifications / total) * 100 : 50;
@@ -73,8 +74,14 @@ const NewsCard = ({ image, category, title, excerpt, readTime, index, tags, cita
               <span className="font-body text-[10px] font-semibold tracking-widest uppercase text-accent">
                 {category}
               </span>
+              {status === "in-review" && (
+                <span className="font-body text-[10px] font-medium px-2 py-0.5 rounded-full bg-amber-500/10 border border-amber-500/30 text-amber-600 dark:text-amber-400">
+                  In Review
+                </span>
+              )}
               <span className="text-muted-foreground/30">·</span>
               <span className="font-body text-xs text-muted-foreground">{readTime}</span>
+            </div>
             </div>
 
             <h3 className="font-display text-base md:text-lg font-bold mt-1.5 leading-snug group-hover:text-accent transition-colors">

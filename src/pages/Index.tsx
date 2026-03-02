@@ -1,13 +1,17 @@
-import { useState, useMemo, useEffect } from "react";
+import { useState, useMemo, useEffect, useCallback, useRef } from "react";
 import { useSearchParams } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
-import { Filter, TrendingUp, ShieldCheck, X, Search, CheckCircle2, MessageCircleQuestion, Clock } from "lucide-react";
+import { Filter, TrendingUp, ShieldCheck, X, Search, CheckCircle2, MessageCircleQuestion, Clock, FileText, FileSearch } from "lucide-react";
 import SiteHeader from "@/components/SiteHeader";
 import NewsCard from "@/components/NewsCard";
 import SiteFooter from "@/components/SiteFooter";
 import CoachMark from "@/components/CoachMark";
-import { articles, trendingArticles, getUniqueTags, politicianParty, partyColors, type Tag } from "@/lib/articles";
+import AdSlot from "@/components/AdSlot";
+import { articles, trendingArticles, getUniqueTags, politicianParty, partyColors, type Tag, type ArticleStatus } from "@/lib/articles";
 import { getVeracityRating, allRatingLevels, type VeracityLevel } from "@/lib/veracity";
+
+const ITEMS_PER_PAGE = 3;
+const AD_INTERVAL = 3; // Show ad every N articles
 
 const getTagStyle = (tag: Tag) => {
   if (tag.type === "party") {
@@ -30,12 +34,18 @@ type TrendingSort = "verified" | "recent" | "challenged";
 
 const Index = () => {
   const [searchParams, setSearchParams] = useSearchParams();
-  const [activeTagFilter, setActiveTagFilter] = useState<string | null>(searchParams.get("tag"));
+  const [activeTagFilters, setActiveTagFilters] = useState<string[]>(() => {
+    const tag = searchParams.get("tag");
+    return tag ? [tag] : [];
+  });
   const [activeRatingFilter, setActiveRatingFilter] = useState<VeracityLevel | null>(null);
+  const [activeStatusFilter, setActiveStatusFilter] = useState<ArticleStatus | null>(null);
   const [filterOpen, setFilterOpen] = useState(false);
   const [trendingOpen, setTrendingOpen] = useState(false);
   const [tagSearch, setTagSearch] = useState("");
   const [trendingSort, setTrendingSort] = useState<TrendingSort>("verified");
+  const [visibleCount, setVisibleCount] = useState(ITEMS_PER_PAGE);
+  const loadMoreRef = useRef<HTMLDivElement>(null);
 
   const uniqueTags = useMemo(() => getUniqueTags(), []);
 
@@ -43,20 +53,21 @@ const Index = () => {
   useEffect(() => {
     const tagParam = searchParams.get("tag");
     if (tagParam) {
-      setActiveTagFilter(tagParam);
+      setActiveTagFilters((prev) => (prev.includes(tagParam) ? prev : [...prev, tagParam]));
       setSearchParams({}, { replace: true });
     }
   }, [searchParams, setSearchParams]);
 
   const filteredArticles = useMemo(() => {
     return articles.filter((article) => {
-      const tagMatch = !activeTagFilter || article.tags.some((t) => t.label === activeTagFilter);
+      const tagMatch = activeTagFilters.length === 0 || activeTagFilters.some((t) => article.tags.some((at) => at.label === t));
       const ratingMatch = !activeRatingFilter || getVeracityRating(article.verifications, article.challenges).level === activeRatingFilter;
-      return tagMatch && ratingMatch;
+      const statusMatch = !activeStatusFilter || article.status === activeStatusFilter;
+      return tagMatch && ratingMatch && statusMatch;
     });
-  }, [activeTagFilter, activeRatingFilter]);
+  }, [activeTagFilters, activeRatingFilter, activeStatusFilter]);
 
-  const hasActiveFilters = activeTagFilter !== null || activeRatingFilter !== null;
+  const hasActiveFilters = activeTagFilters.length > 0 || activeRatingFilter !== null || activeStatusFilter !== null;
 
   const filteredTags = useMemo(() => {
     if (!tagSearch.trim()) return uniqueTags;
@@ -72,6 +83,43 @@ const Index = () => {
       case "recent": return sorted.sort((a, b) => new Date(b.publishedAt).getTime() - new Date(a.publishedAt).getTime());
     }
   }, [trendingSort]);
+
+  const toggleTag = (label: string) => {
+    setActiveTagFilters((prev) =>
+      prev.includes(label) ? prev.filter((t) => t !== label) : [...prev, label]
+    );
+  };
+
+  const clearAllFilters = () => {
+    setActiveTagFilters([]);
+    setActiveRatingFilter(null);
+    setActiveStatusFilter(null);
+  };
+
+  // Reset visible count when filters change
+  useEffect(() => {
+    setVisibleCount(ITEMS_PER_PAGE);
+  }, [activeTagFilters, activeRatingFilter, activeStatusFilter]);
+
+  // Infinite scroll
+  const handleLoadMore = useCallback(() => {
+    setVisibleCount((prev) => Math.min(prev + ITEMS_PER_PAGE, filteredArticles.length));
+  }, [filteredArticles.length]);
+
+  useEffect(() => {
+    const el = loadMoreRef.current;
+    if (!el) return;
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) handleLoadMore();
+      },
+      { rootMargin: "200px" }
+    );
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, [handleLoadMore]);
+
+  const visibleArticles = filteredArticles.slice(0, visibleCount);
 
   return (
     <div className="min-h-screen bg-background">
@@ -103,6 +151,30 @@ const Index = () => {
                   </button>
                 </div>
 
+                {/* Status filter */}
+                <div className="mb-5">
+                  <span className="font-body text-[10px] text-muted-foreground uppercase tracking-wider font-semibold">Status</span>
+                  <div className="flex gap-1.5 mt-2">
+                    {([
+                      { key: "published" as ArticleStatus, label: "Published", icon: FileText },
+                      { key: "in-review" as ArticleStatus, label: "In Review", icon: FileSearch },
+                    ]).map(({ key, label, icon: Icon }) => (
+                      <button
+                        key={key}
+                        onClick={() => setActiveStatusFilter(activeStatusFilter === key ? null : key)}
+                        className={`flex items-center gap-1 font-body text-[10px] font-medium px-2.5 py-1 rounded-full border transition-all ${
+                          activeStatusFilter === key
+                            ? "bg-foreground text-background border-foreground"
+                            : "bg-secondary border-border text-muted-foreground hover:text-foreground"
+                        }`}
+                      >
+                        <Icon className="w-2.5 h-2.5" />
+                        {label}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
                 {/* Tag search */}
                 <div className="mb-4">
                   <div className="relative">
@@ -125,9 +197,9 @@ const Index = () => {
                       {filteredTags.filter((t) => t.type === "politician").map((tag) => (
                         <button
                           key={tag.label}
-                          onClick={() => setActiveTagFilter(activeTagFilter === tag.label ? null : tag.label)}
+                          onClick={() => toggleTag(tag.label)}
                           className={`font-body text-[10px] font-medium px-2.5 py-1 rounded-full border transition-all ${
-                            activeTagFilter === tag.label
+                            activeTagFilters.includes(tag.label)
                               ? "bg-foreground text-background border-foreground"
                               : getTagStyle(tag)
                           }`}
@@ -147,9 +219,9 @@ const Index = () => {
                       {filteredTags.filter((t) => t.type === "party").map((tag) => (
                         <button
                           key={tag.label}
-                          onClick={() => setActiveTagFilter(activeTagFilter === tag.label ? null : tag.label)}
+                          onClick={() => toggleTag(tag.label)}
                           className={`font-body text-[10px] font-medium px-2.5 py-1 rounded-full border transition-all ${
-                            activeTagFilter === tag.label
+                            activeTagFilters.includes(tag.label)
                               ? "bg-foreground text-background border-foreground"
                               : getTagStyle(tag)
                           }`}
@@ -169,9 +241,9 @@ const Index = () => {
                       {filteredTags.filter((t) => t.type === "topic").map((tag) => (
                         <button
                           key={tag.label}
-                          onClick={() => setActiveTagFilter(activeTagFilter === tag.label ? null : tag.label)}
+                          onClick={() => toggleTag(tag.label)}
                           className={`font-body text-[10px] font-medium px-2.5 py-1 rounded-full border transition-all ${
-                            activeTagFilter === tag.label
+                            activeTagFilters.includes(tag.label)
                               ? "bg-foreground text-background border-foreground"
                               : getTagStyle(tag)
                           }`}
@@ -203,7 +275,7 @@ const Index = () => {
 
                 {hasActiveFilters && (
                   <button
-                    onClick={() => { setActiveTagFilter(null); setActiveRatingFilter(null); }}
+                    onClick={clearAllFilters}
                     className="w-full font-body text-xs text-accent font-medium py-2 rounded-md border border-accent/30 hover:bg-accent/10 transition-colors"
                   >
                     Clear all filters
@@ -331,28 +403,52 @@ const Index = () => {
         {hasActiveFilters && (
           <div className="flex items-center gap-2 mb-4 flex-wrap">
             <span className="font-body text-[10px] text-muted-foreground uppercase tracking-wider">Filtering:</span>
-            {activeTagFilter && (
-              <span className="font-body text-[10px] font-medium bg-accent/10 text-accent border border-accent/30 px-2.5 py-1 rounded-full">
-                {activeTagFilter}
-              </span>
-            )}
+            {activeTagFilters.map((tag) => (
+              <button
+                key={tag}
+                onClick={() => toggleTag(tag)}
+                className="font-body text-[10px] font-medium bg-accent/10 text-accent border border-accent/30 px-2.5 py-1 rounded-full hover:bg-accent/20 transition-colors flex items-center gap-1"
+              >
+                {tag}
+                <X className="w-2.5 h-2.5" />
+              </button>
+            ))}
             {activeRatingFilter && (
-              <span className="font-body text-[10px] font-medium bg-foreground text-background px-2.5 py-1 rounded-full">
+              <button
+                onClick={() => setActiveRatingFilter(null)}
+                className="font-body text-[10px] font-medium bg-foreground text-background px-2.5 py-1 rounded-full flex items-center gap-1"
+              >
                 {allRatingLevels.find((r) => r.level === activeRatingFilter)?.label}
-              </span>
+                <X className="w-2.5 h-2.5" />
+              </button>
+            )}
+            {activeStatusFilter && (
+              <button
+                onClick={() => setActiveStatusFilter(null)}
+                className="font-body text-[10px] font-medium bg-foreground text-background px-2.5 py-1 rounded-full flex items-center gap-1"
+              >
+                {activeStatusFilter === "published" ? "Published" : "In Review"}
+                <X className="w-2.5 h-2.5" />
+              </button>
             )}
             <button
-              onClick={() => { setActiveTagFilter(null); setActiveRatingFilter(null); }}
+              onClick={clearAllFilters}
               className="font-body text-[10px] text-muted-foreground hover:text-foreground transition-colors underline"
             >
-              Clear
+              Clear all
             </button>
           </div>
         )}
 
         <div className="flex flex-col gap-5">
-          {filteredArticles.map((article, i) => (
-            <NewsCard key={article.title} {...article} index={i} />
+          {visibleArticles.map((article, i) => (
+            <div key={article.slug}>
+              <NewsCard {...article} index={i} />
+              {/* Ad slot after every N articles */}
+              {(i + 1) % AD_INTERVAL === 0 && i < visibleArticles.length - 1 && (
+                <AdSlot position={Math.floor(i / AD_INTERVAL)} />
+              )}
+            </div>
           ))}
           {filteredArticles.length === 0 && (
             <p className="font-body text-sm text-muted-foreground py-12 text-center">
@@ -360,6 +456,13 @@ const Index = () => {
             </p>
           )}
         </div>
+
+        {/* Infinite scroll sentinel */}
+        {visibleCount < filteredArticles.length && (
+          <div ref={loadMoreRef} className="flex justify-center py-8">
+            <span className="font-body text-xs text-muted-foreground animate-pulse">Loading more articles…</span>
+          </div>
+        )}
       </main>
 
       <SiteFooter />
