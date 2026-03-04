@@ -82,7 +82,6 @@ const NewsCard = ({ image, category, title, excerpt, readTime, index, tags, cita
               <span className="text-muted-foreground/30">·</span>
               <span className="font-body text-xs text-muted-foreground">{readTime}</span>
             </div>
-            </div>
 
             <h3 className="font-display text-base md:text-lg font-bold mt-1.5 leading-snug group-hover:text-accent transition-colors">
               {title}
