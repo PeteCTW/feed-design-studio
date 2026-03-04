@@ -20,8 +20,6 @@ const SubmitArticleDialog = () => {
   const [description, setDescription] = useState("");
   const [citations, setCitations] = useState<CitationEntry[]>([
     { source: "", url: "" },
-    { source: "", url: "" },
-    { source: "", url: "" },
   ]);
 
   const validCitations = citations.filter((c) => c.source.trim() && c.url.trim());
