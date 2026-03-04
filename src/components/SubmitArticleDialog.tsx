@@ -45,7 +45,7 @@ const SubmitArticleDialog = () => {
     setUrl("");
     setTitle("");
     setDescription("");
-    setCitations([{ source: "", url: "" }, { source: "", url: "" }, { source: "", url: "" }]);
+    setCitations([{ source: "", url: "" }]);
   };
 
   return (
