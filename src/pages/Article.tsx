@@ -1,5 +1,5 @@
 import { useParams, Link, useNavigate } from "react-router-dom";
-import { ArrowLeft, ExternalLink, User, Flag, Hash } from "lucide-react";
+import { ArrowLeft, ExternalLink, User, Flag, Hash, Clock } from "lucide-react";
 import { motion } from "framer-motion";
 import SiteHeader from "@/components/SiteHeader";
 import SiteFooter from "@/components/SiteFooter";
@@ -45,6 +45,8 @@ const Article = () => {
     );
   }
 
+  const isInReview = article.status === "in-review";
+
   const handleTagClick = (tag: Tag) => {
     navigate(`/?tag=${encodeURIComponent(tag.label)}`);
   };
@@ -73,7 +75,7 @@ const Article = () => {
             <span className="font-body text-[10px] font-semibold tracking-widest uppercase text-accent">
               {article.category}
             </span>
-            {article.status === "in-review" && (
+            {isInReview && (
               <span className="font-body text-[10px] font-medium px-2 py-0.5 rounded-full bg-amber-500/10 border border-amber-500/30 text-amber-600 dark:text-amber-400">
                 In Review
               </span>
@@ -107,13 +109,23 @@ const Article = () => {
             <img src={article.image} alt={article.title} className="w-full aspect-[2/1] object-cover" loading="lazy" />
           </div>
 
-          {/* Verify / Challenge actions */}
-          <CoachMark id="verify" label="Verify or challenge claims with the community" position="top">
-            <VerifyActions
-              initialVerifications={article.verifications}
-              initialChallenges={article.challenges}
-            />
-          </CoachMark>
+          {/* Verify / Challenge actions OR In Review banner */}
+          {isInReview ? (
+            <div className="mt-6 p-5 bg-amber-500/5 rounded-lg border border-amber-500/20 flex items-center gap-3">
+              <Clock className="w-5 h-5 text-amber-500 shrink-0" />
+              <div>
+                <span className="font-body text-sm font-semibold text-amber-600 dark:text-amber-400">Under Community Review</span>
+                <p className="font-body text-xs text-muted-foreground mt-1">This article is currently being reviewed by the community for accuracy, sourcing quality, and factual integrity. Interactions will be enabled once the review process is complete.</p>
+              </div>
+            </div>
+          ) : (
+            <CoachMark id="verify" label="Verify or challenge claims with the community" position="top">
+              <VerifyActions
+                initialVerifications={article.verifications}
+                initialChallenges={article.challenges}
+              />
+            </CoachMark>
+          )}
 
           {/* Body */}
           <div className="mt-8 font-body text-base leading-relaxed text-foreground space-y-4">

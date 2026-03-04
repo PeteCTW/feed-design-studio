@@ -125,7 +125,7 @@ const SubmitArticleDialog = () => {
                       />
                     </div>
                   </div>
-                  {citations.length > 3 && (
+                  {citations.length > 1 && (
                     <button
                       type="button"
                       onClick={() => handleRemoveCitation(i)}

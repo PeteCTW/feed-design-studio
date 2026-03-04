@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import { ShieldCheck, ExternalLink, Flag, Hash, User, CheckCircle2, MessageCircleQuestion, Sparkles } from "lucide-react";
+import { ShieldCheck, ExternalLink, Flag, Hash, User, CheckCircle2, MessageCircleQuestion, Sparkles, Clock } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useState } from "react";
 import { getVeracityRating, getMockAISummary } from "@/lib/veracity";
@@ -43,6 +43,7 @@ const getTagStyle = (tag: Tag) => {
 };
 
 const NewsCard = ({ image, category, title, excerpt, readTime, index, tags, citations, verifications, challenges, slug, status }: NewsCardProps) => {
+  const isInReview = status === "in-review";
   const rating = getVeracityRating(verifications, challenges);
   const total = verifications + challenges;
   const verifyPercent = total > 0 ? (verifications / total) * 100 : 50;
@@ -74,7 +75,7 @@ const NewsCard = ({ image, category, title, excerpt, readTime, index, tags, cita
               <span className="font-body text-[10px] font-semibold tracking-widest uppercase text-accent">
                 {category}
               </span>
-              {status === "in-review" && (
+              {isInReview && (
                 <span className="font-body text-[10px] font-medium px-2 py-0.5 rounded-full bg-amber-500/10 border border-amber-500/30 text-amber-600 dark:text-amber-400">
                   In Review
                 </span>
@@ -108,49 +109,59 @@ const NewsCard = ({ image, category, title, excerpt, readTime, index, tags, cita
             </div>
           </div>
 
-          {/* Veracity meter — stacked bar */}
-          <div
-            className="relative mt-4 p-3 bg-secondary/50 rounded-md"
-            onMouseEnter={() => setShowHoverSummary(true)}
-            onMouseLeave={() => setShowHoverSummary(false)}
-          >
-            <div className="flex items-center justify-between mb-1.5">
-              <span className="flex items-center gap-1.5 font-body text-xs font-semibold text-foreground">
-                <ShieldCheck className="w-3.5 h-3.5" />
-                {total} interactions
-              </span>
-              <span className="font-body text-[10px] font-medium text-muted-foreground uppercase tracking-wider">
-                {rating.label}
-              </span>
-            </div>
-            <div className="h-1.5 bg-muted rounded-full overflow-hidden flex">
-              <div className={`h-full ${rating.verifyColor}`} style={{ width: `${verifyPercent}%` }} />
-              <div className={`h-full ${rating.challengeColor}`} style={{ width: `${challengePercent}%` }} />
-            </div>
-            <div className="flex items-center justify-between mt-1">
-              <span className="font-body text-[9px] text-muted-foreground flex items-center gap-0.5">
-                <CheckCircle2 className="w-2.5 h-2.5" /> {verifications}
-              </span>
-              <span className="font-body text-[9px] text-muted-foreground flex items-center gap-0.5">
-                <MessageCircleQuestion className="w-2.5 h-2.5" /> {challenges}
-              </span>
-            </div>
-
-            {/* Hover AI summary tooltip */}
-            {showHoverSummary && (
-              <div className="absolute bottom-full left-0 right-0 mb-2 z-10" onClick={(e) => e.preventDefault()}>
-                <div className="bg-foreground text-background rounded-lg p-3 shadow-xl">
-                  <div className="flex items-center gap-1.5 mb-1.5">
-                    <Sparkles className="w-3 h-3 text-accent" />
-                    <span className="font-body text-[10px] font-semibold">AI Community Summary</span>
-                  </div>
-                  <p className="font-body text-[11px] leading-relaxed opacity-90 line-clamp-3">
-                    {getMockAISummary(verifications, challenges)}
-                  </p>
-                </div>
+          {/* Veracity meter or In Review banner */}
+          {isInReview ? (
+            <div className="mt-4 p-3 bg-amber-500/5 rounded-md border border-amber-500/20 flex items-center gap-2">
+              <Clock className="w-4 h-4 text-amber-500" />
+              <div>
+                <span className="font-body text-xs font-semibold text-amber-600 dark:text-amber-400">Under Community Review</span>
+                <p className="font-body text-[10px] text-muted-foreground mt-0.5">This article is being reviewed for accuracy and sourcing before full publication.</p>
               </div>
-            )}
-          </div>
+            </div>
+          ) : (
+            <div
+              className="relative mt-4 p-3 bg-secondary/50 rounded-md"
+              onMouseEnter={() => setShowHoverSummary(true)}
+              onMouseLeave={() => setShowHoverSummary(false)}
+            >
+              <div className="flex items-center justify-between mb-1.5">
+                <span className="flex items-center gap-1.5 font-body text-xs font-semibold text-foreground">
+                  <ShieldCheck className="w-3.5 h-3.5" />
+                  {total} interactions
+                </span>
+                <span className="font-body text-[10px] font-medium text-muted-foreground uppercase tracking-wider">
+                  {rating.label}
+                </span>
+              </div>
+              <div className="h-1.5 bg-muted rounded-full overflow-hidden flex">
+                <div className={`h-full ${rating.verifyColor}`} style={{ width: `${verifyPercent}%` }} />
+                <div className={`h-full ${rating.challengeColor}`} style={{ width: `${challengePercent}%` }} />
+              </div>
+              <div className="flex items-center justify-between mt-1">
+                <span className="font-body text-[9px] text-muted-foreground flex items-center gap-0.5">
+                  <CheckCircle2 className="w-2.5 h-2.5" /> {verifications}
+                </span>
+                <span className="font-body text-[9px] text-muted-foreground flex items-center gap-0.5">
+                  <MessageCircleQuestion className="w-2.5 h-2.5" /> {challenges}
+                </span>
+              </div>
+
+              {/* Hover AI summary tooltip */}
+              {showHoverSummary && (
+                <div className="absolute bottom-full left-0 right-0 mb-2 z-10" onClick={(e) => e.preventDefault()}>
+                  <div className="bg-foreground text-background rounded-lg p-3 shadow-xl">
+                    <div className="flex items-center gap-1.5 mb-1.5">
+                      <Sparkles className="w-3 h-3 text-accent" />
+                      <span className="font-body text-[10px] font-semibold">AI Community Summary</span>
+                    </div>
+                    <p className="font-body text-[11px] leading-relaxed opacity-90 line-clamp-3">
+                      {getMockAISummary(verifications, challenges)}
+                    </p>
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
 
           {/* Citations */}
           <div className="mt-3 flex flex-wrap gap-1">

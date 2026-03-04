@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Globe, Check } from "lucide-react";
+import { Check } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -26,13 +26,12 @@ const CountrySelector = () => {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <button className="flex items-center gap-1.5 px-2 py-1.5 rounded-md text-muted-foreground hover:text-foreground hover:bg-secondary transition-colors font-body text-xs">
-          <Globe className="w-3.5 h-3.5" />
-          <span>{current.flag} {current.code}</span>
+        <button className="flex items-center gap-1 px-2 py-1.5 rounded-md text-muted-foreground hover:text-foreground hover:bg-secondary transition-colors font-body text-sm">
+          <span className="text-base leading-none">{current.flag}</span>
         </button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-44">
-        <DropdownMenuLabel className="font-body text-xs">Select Country</DropdownMenuLabel>
+        <DropdownMenuLabel className="font-body text-xs">Select Region</DropdownMenuLabel>
         <DropdownMenuSeparator />
         {countries.map((c) => (
           <DropdownMenuItem
@@ -40,7 +39,7 @@ const CountrySelector = () => {
             onClick={() => setSelected(c.code)}
             className="font-body text-sm gap-2 cursor-pointer"
           >
-            <span>{c.flag}</span>
+            <span className="text-base leading-none">{c.flag}</span>
             {c.label}
             {selected === c.code && <Check className="w-3.5 h-3.5 ml-auto text-accent" />}
           </DropdownMenuItem>
