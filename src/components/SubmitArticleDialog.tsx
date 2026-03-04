@@ -30,7 +30,7 @@ const SubmitArticleDialog = () => {
   };
 
   const handleRemoveCitation = (index: number) => {
-    if (citations.length <= 3) return;
+    if (citations.length <= 1) return;
     setCitations((prev) => prev.filter((_, i) => i !== index));
   };
 
