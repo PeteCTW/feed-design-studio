@@ -1,7 +1,7 @@
 import { useState, useMemo, useEffect, useCallback, useRef } from "react";
 import { useSearchParams } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
-import { Filter, TrendingUp, ShieldCheck, X, Search, CheckCircle2, MessageCircleQuestion, Clock, FileText, FileSearch } from "lucide-react";
+import { Filter, TrendingUp, ShieldCheck, X, Search, CheckCircle2, MessageCircleQuestion, Clock, FileText, FileSearch, BookMarked } from "lucide-react";
 import SiteHeader from "@/components/SiteHeader";
 import NewsCard from "@/components/NewsCard";
 import SiteFooter from "@/components/SiteFooter";
@@ -11,7 +11,7 @@ import { articles, trendingArticles, getUniqueTags, politicianParty, partyColors
 import { getVeracityRating, allRatingLevels, type VeracityLevel } from "@/lib/veracity";
 
 const ITEMS_PER_PAGE = 3;
-const AD_INTERVAL = 3; // Show ad every N articles
+const AD_INTERVAL = 3;
 
 const getTagStyle = (tag: Tag) => {
   if (tag.type === "party") {
@@ -40,6 +40,7 @@ const Index = () => {
   });
   const [activeRatingFilter, setActiveRatingFilter] = useState<VeracityLevel | null>(null);
   const [activeStatusFilter, setActiveStatusFilter] = useState<ArticleStatus | null>(null);
+  const [savedOnly, setSavedOnly] = useState(false);
   const [filterOpen, setFilterOpen] = useState(false);
   const [trendingOpen, setTrendingOpen] = useState(false);
   const [tagSearch, setTagSearch] = useState("");
@@ -49,7 +50,6 @@ const Index = () => {
 
   const uniqueTags = useMemo(() => getUniqueTags(), []);
 
-  // Sync tag param
   useEffect(() => {
     const tagParam = searchParams.get("tag");
     if (tagParam) {
@@ -67,7 +67,7 @@ const Index = () => {
     });
   }, [activeTagFilters, activeRatingFilter, activeStatusFilter]);
 
-  const hasActiveFilters = activeTagFilters.length > 0 || activeRatingFilter !== null || activeStatusFilter !== null;
+  const hasActiveFilters = activeTagFilters.length > 0 || activeRatingFilter !== null || activeStatusFilter !== null || savedOnly;
 
   const filteredTags = useMemo(() => {
     if (!tagSearch.trim()) return uniqueTags;
@@ -94,14 +94,13 @@ const Index = () => {
     setActiveTagFilters([]);
     setActiveRatingFilter(null);
     setActiveStatusFilter(null);
+    setSavedOnly(false);
   };
 
-  // Reset visible count when filters change
   useEffect(() => {
     setVisibleCount(ITEMS_PER_PAGE);
-  }, [activeTagFilters, activeRatingFilter, activeStatusFilter]);
+  }, [activeTagFilters, activeRatingFilter, activeStatusFilter, savedOnly]);
 
-  // Infinite scroll
   const handleLoadMore = useCallback(() => {
     setVisibleCount((prev) => Math.min(prev + ITEMS_PER_PAGE, filteredArticles.length));
   }, [filteredArticles.length]);
@@ -148,6 +147,21 @@ const Index = () => {
                   <h3 className="font-display text-sm font-bold">Filters</h3>
                   <button onClick={() => setFilterOpen(false)} className="p-1 rounded-md text-muted-foreground hover:text-foreground hover:bg-secondary">
                     <X className="w-4 h-4" />
+                  </button>
+                </div>
+
+                {/* Saved articles toggle */}
+                <div className="mb-5">
+                  <button
+                    onClick={() => setSavedOnly(!savedOnly)}
+                    className={`flex items-center gap-1.5 font-body text-[10px] font-medium px-2.5 py-1.5 rounded-full border transition-all ${
+                      savedOnly
+                        ? "bg-foreground text-background border-foreground"
+                        : "bg-secondary border-border text-muted-foreground hover:text-foreground"
+                    }`}
+                  >
+                    <BookMarked className="w-2.5 h-2.5" />
+                    Saved Articles
                   </button>
                 </div>
 
@@ -372,30 +386,26 @@ const Index = () => {
 
       {/* Edge triggers */}
       {!filterOpen && (
-        <CoachMark id="filters" label="Filter articles by tags, parties, and veracity rating" position="right">
-          <button
-            onClick={() => setFilterOpen(true)}
-            className="fixed left-0 top-1/2 -translate-y-1/2 z-30 bg-card border border-l-0 border-border rounded-r-lg px-1.5 py-4 shadow-md hover:bg-secondary transition-colors group"
-            aria-label="Open filters"
-          >
-            <Filter className="w-3.5 h-3.5 text-muted-foreground group-hover:text-foreground transition-colors" />
-            {hasActiveFilters && (
-              <div className="w-1.5 h-1.5 bg-accent rounded-full absolute top-2 right-1.5" />
-            )}
-          </button>
-        </CoachMark>
+        <button
+          onClick={() => setFilterOpen(true)}
+          className="fixed left-0 top-1/2 -translate-y-1/2 z-30 bg-card border border-l-0 border-border rounded-r-lg px-1.5 py-4 shadow-md hover:bg-secondary transition-colors group"
+          aria-label="Open filters"
+        >
+          <Filter className="w-3.5 h-3.5 text-muted-foreground group-hover:text-foreground transition-colors" />
+          {hasActiveFilters && (
+            <div className="w-1.5 h-1.5 bg-accent rounded-full absolute top-2 right-1.5" />
+          )}
+        </button>
       )}
 
       {!trendingOpen && (
-        <CoachMark id="trending" label="See what's trending — most verified, recent, or challenged" position="left">
-          <button
-            onClick={() => setTrendingOpen(true)}
-            className="fixed right-0 top-1/2 -translate-y-1/2 z-30 bg-card border border-r-0 border-border rounded-l-lg px-1.5 py-4 shadow-md hover:bg-secondary transition-colors group"
-            aria-label="Open trending"
-          >
-            <TrendingUp className="w-3.5 h-3.5 text-muted-foreground group-hover:text-foreground transition-colors" />
-          </button>
-        </CoachMark>
+        <button
+          onClick={() => setTrendingOpen(true)}
+          className="fixed right-0 top-1/2 -translate-y-1/2 z-30 bg-card border border-r-0 border-border rounded-l-lg px-1.5 py-4 shadow-md hover:bg-secondary transition-colors group"
+          aria-label="Open trending"
+        >
+          <TrendingUp className="w-3.5 h-3.5 text-muted-foreground group-hover:text-foreground transition-colors" />
+        </button>
       )}
 
       <main className="container max-w-5xl py-6">
@@ -403,6 +413,16 @@ const Index = () => {
         {hasActiveFilters && (
           <div className="flex items-center gap-2 mb-4 flex-wrap">
             <span className="font-body text-[10px] text-muted-foreground uppercase tracking-wider">Filtering:</span>
+            {savedOnly && (
+              <button
+                onClick={() => setSavedOnly(false)}
+                className="font-body text-[10px] font-medium bg-accent/10 text-accent border border-accent/30 px-2.5 py-1 rounded-full hover:bg-accent/20 transition-colors flex items-center gap-1"
+              >
+                <BookMarked className="w-2.5 h-2.5" />
+                Saved
+                <X className="w-2.5 h-2.5" />
+              </button>
+            )}
             {activeTagFilters.map((tag) => (
               <button
                 key={tag}
@@ -444,7 +464,6 @@ const Index = () => {
           {visibleArticles.map((article, i) => (
             <div key={article.slug}>
               <NewsCard {...article} index={i} />
-              {/* Ad slot after every N articles */}
               {(i + 1) % AD_INTERVAL === 0 && i < visibleArticles.length - 1 && (
                 <AdSlot position={Math.floor(i / AD_INTERVAL)} />
               )}

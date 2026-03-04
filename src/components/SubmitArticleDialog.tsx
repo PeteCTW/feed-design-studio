@@ -20,8 +20,6 @@ const SubmitArticleDialog = () => {
   const [description, setDescription] = useState("");
   const [citations, setCitations] = useState<CitationEntry[]>([
     { source: "", url: "" },
-    { source: "", url: "" },
-    { source: "", url: "" },
   ]);
 
   const validCitations = citations.filter((c) => c.source.trim() && c.url.trim());
@@ -32,7 +30,7 @@ const SubmitArticleDialog = () => {
   };
 
   const handleRemoveCitation = (index: number) => {
-    if (citations.length <= 3) return;
+    if (citations.length <= 1) return;
     setCitations((prev) => prev.filter((_, i) => i !== index));
   };
 
@@ -47,7 +45,7 @@ const SubmitArticleDialog = () => {
     setUrl("");
     setTitle("");
     setDescription("");
-    setCitations([{ source: "", url: "" }, { source: "", url: "" }, { source: "", url: "" }]);
+    setCitations([{ source: "", url: "" }]);
   };
 
   return (
@@ -127,7 +125,7 @@ const SubmitArticleDialog = () => {
                       />
                     </div>
                   </div>
-                  {citations.length > 3 && (
+                  {citations.length > 1 && (
                     <button
                       type="button"
                       onClick={() => handleRemoveCitation(i)}
