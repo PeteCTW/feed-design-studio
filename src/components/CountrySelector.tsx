@@ -10,14 +10,17 @@ import {
 } from "@/components/ui/dropdown-menu";
 
 const countries = [
-  { code: "US", label: "United States", flag: "🇺🇸" },
-  { code: "GB", label: "United Kingdom", flag: "🇬🇧" },
-  { code: "CA", label: "Canada", flag: "🇨🇦" },
-  { code: "AU", label: "Australia", flag: "🇦🇺" },
-  { code: "DE", label: "Germany", flag: "🇩🇪" },
-  { code: "FR", label: "France", flag: "🇫🇷" },
-  { code: "IN", label: "India", flag: "🇮🇳" },
+  { code: "US", label: "United States" },
+  { code: "GB", label: "United Kingdom" },
+  { code: "CA", label: "Canada" },
+  { code: "AU", label: "Australia" },
+  { code: "DE", label: "Germany" },
+  { code: "FR", label: "France" },
+  { code: "IN", label: "India" },
 ];
+
+const flagUrl = (code: string) =>
+  `https://flagcdn.com/w40/${code.toLowerCase()}.png`;
 
 const CountrySelector = () => {
   const [selected, setSelected] = useState("US");
