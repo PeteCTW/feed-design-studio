@@ -30,7 +30,7 @@ const CountrySelector = () => {
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <button className="flex items-center gap-1 px-2 py-1.5 rounded-md text-muted-foreground hover:text-foreground hover:bg-secondary transition-colors font-body text-sm">
-          <span className="text-base leading-none">{current.flag}</span>
+          <img src={flagUrl(current.code)} alt={current.label} className="w-5 h-auto rounded-sm" />
         </button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-44">
