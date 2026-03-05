@@ -10,14 +10,17 @@ import {
 } from "@/components/ui/dropdown-menu";
 
 const countries = [
-  { code: "US", label: "United States", flag: "🇺🇸" },
-  { code: "GB", label: "United Kingdom", flag: "🇬🇧" },
-  { code: "CA", label: "Canada", flag: "🇨🇦" },
-  { code: "AU", label: "Australia", flag: "🇦🇺" },
-  { code: "DE", label: "Germany", flag: "🇩🇪" },
-  { code: "FR", label: "France", flag: "🇫🇷" },
-  { code: "IN", label: "India", flag: "🇮🇳" },
+  { code: "US", label: "United States" },
+  { code: "GB", label: "United Kingdom" },
+  { code: "CA", label: "Canada" },
+  { code: "AU", label: "Australia" },
+  { code: "DE", label: "Germany" },
+  { code: "FR", label: "France" },
+  { code: "IN", label: "India" },
 ];
+
+const flagUrl = (code: string) =>
+  `https://flagcdn.com/w40/${code.toLowerCase()}.png`;
 
 const CountrySelector = () => {
   const [selected, setSelected] = useState("US");
@@ -27,7 +30,7 @@ const CountrySelector = () => {
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <button className="flex items-center gap-1 px-2 py-1.5 rounded-md text-muted-foreground hover:text-foreground hover:bg-secondary transition-colors font-body text-sm">
-          <span className="text-base leading-none">{current.flag}</span>
+          <img src={flagUrl(current.code)} alt={current.label} className="w-5 h-auto rounded-sm" />
         </button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-44">
@@ -39,7 +42,7 @@ const CountrySelector = () => {
             onClick={() => setSelected(c.code)}
             className="font-body text-sm gap-2 cursor-pointer"
           >
-            <span className="text-base leading-none">{c.flag}</span>
+            <img src={flagUrl(c.code)} alt={c.label} className="w-5 h-auto rounded-sm" />
             {c.label}
             {selected === c.code && <Check className="w-3.5 h-3.5 ml-auto text-accent" />}
           </DropdownMenuItem>
