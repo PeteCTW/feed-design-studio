@@ -42,7 +42,7 @@ const CountrySelector = () => {
             onClick={() => setSelected(c.code)}
             className="font-body text-sm gap-2 cursor-pointer"
           >
-            <img src={flagUrl(c.code)} alt={c.label} className="w-5 h-auto rounded-sm" />
+            <img src={flagUrl(c.code)} alt={c.label} className="w-5 h-3.5 object-cover rounded-sm" />
             {c.label}
             {selected === c.code && <Check className="w-3.5 h-3.5 ml-auto text-accent" />}
           </DropdownMenuItem>
